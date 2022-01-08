@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="堆栈结构、溢出分析 读书笔记0-05"><meta name="keywords" content="Note"><meta name="author" content="BarretGuy"><meta name="copyright" content="BarretGuy"><title>堆栈结构、溢出分析 读书笔记0-05 | BasicBit</title><link rel="shortcut icon" href="/img/fav.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '6.0.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86%E8%A1%A8%E6%A6%82%E5%BF%B5"><span class="toc-number"></span> <span class="toc-text">堆表概念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A9%BA%E8%A1%A8"><span class="toc-number">1.</span> <span class="toc-text">空表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E8%A1%A8"><span class="toc-number">2.</span> <span class="toc-text">快表</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86%E5%9D%97%E6%93%8D%E4%BD%9C"><span class="toc-number"></span> <span class="toc-text">堆块操作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E9%85%8D"><span class="toc-number">1.</span> <span class="toc-text">分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8A%E6%94%BE"><span class="toc-number">2.</span> <span class="toc-text">释放</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%88%E5%B9%B6"><span class="toc-number">3.</span> <span class="toc-text">合并</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Windows-%E5%A0%86%E7%AE%A1%E7%90%86%E7%89%B9%E7%82%B9"><span class="toc-number">4.</span> <span class="toc-text">Windows 堆管理特点</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86%E8%B0%83%E8%AF%95"><span class="toc-number"></span> <span class="toc-text">堆调试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81"><span class="toc-number">1.</span> <span class="toc-text">代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A0%86%E7%BB%93%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">堆结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">运行流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%AB%E8%A1%A8%E9%97%AE%E9%A2%98"><span class="toc-number">4.</span> <span class="toc-text">快表问题</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8%E7%82%B9%E5%88%86%E6%9E%90-DWORD-SHOOT"><span class="toc-number"></span> <span class="toc-text">溢出利用点分析 DWORD SHOOT</span></a></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://file.qqtouxiang.com/qinglv/2020-07-10/968d1e73115194c7e70e2f729bb016b2.jpeg"></div><div class="author-info__name text-center">BarretGuy</div><div class="author-info__description text-center">不定期更新操作系统，编程，逆向，破解，算法等技术</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">45</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">9</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">4</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(img/c-11.png)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">BasicBit</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/Develop">Develop</a><a class="site-page" href="/Note">Note</a><a class="site-page" href="/Reverse">Reverse</a><a class="site-page" href="/OS">OS</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> Search</span></a></span></div><div id="post-info"><div id="post-title">堆栈结构、溢出分析 读书笔记0-05</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2019-04-01</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><blockquote>
+<p>操作系统版本： Windows Xp</p>
+</blockquote>
+<blockquote>
+<p>编译器：Vc6.0</p>
+</blockquote>
+<blockquote>
+<p>编译模式：Release</p>
+</blockquote>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在Windows中的申请堆内存的方式有很多，例如：LocalAloc、malloc等</p>
+<p>在这些函数实际上内部都是调用RtlAllocateHeap函数进行申请的，在分析对堆的数据结构时，只分析这一个函数就够了</p>
+<h1 id="堆表概念"><a href="#堆表概念" class="headerlink" title="堆表概念"></a>堆表概念</h1><p>堆表位于堆区的起始位置，用于索引堆区的重要信息，堆表设计时考虑了使用平衡二叉树结构，以提高检索效率，而现代操作系统的对标往往不止一种数据结构</p>
+<p>在堆表中有两个重要的数据结构，快表和空表，用于分配、释放、回收堆空间</p>
+<h2 id="空表"><a href="#空表" class="headerlink" title="空表"></a>空表</h2><p>空表中保存了申请栈空间的地址，以链表（双向链表）的方式保存</p>
+<p>空表中保存了128个项，每项都是一个单独的链表，每项包含了8个字节的空间，这8个字节的空间保存了两个地址，分别是链表的起始地址和结束地址</p>
+<p>空表不同项保存的空间大小 = 空表项序号 * 8 ，例如：空表[3] = 3 * 8 = 24 字节，在空表[3]链表中的每一项都保存了24字节空间，除0项外，其余同理</p>
+<p>0号项除外，0号项保存了所有大于等于1024字节的堆块，小于512KB，按大小升序的方式链接在0项的链表中</p>
+<p>当HeapCreate结束后，空表除了0项以外，其余项保存的两个地址均指向自身，代表此项尚未初始化</p>
+<p>当在HeapCreate后，使用其返回值（句柄）分配8字节空间后释放，这个8字节空间将从空表的0项切割出8字节空间，释放后将其地址链入空表1项，在释放后空表1项的地址也就不会指向自身了，在次申请8字节空间时将在空表中优先查找</p>
+<p><img src="https://tcs.teambition.net/storage/3122390710945b443003571218248b569e8e?Signature=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBcHBJRCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9hcHBJZCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9vcmdhbml6YXRpb25JZCI6IiIsImV4cCI6MTYxMzEzNDM1NywiaWF0IjoxNjEyNTI5NTU3LCJyZXNvdXJjZSI6Ii9zdG9yYWdlLzMxMjIzOTA3MTA5NDViNDQzMDAzNTcxMjE4MjQ4YjU2OWU4ZSJ9.WXlaR1Y-efvxQIuz5TGe9EP6O1N97uuskGDN3qSQqj8&download=image.png"></p>
+<blockquote>
+<p>空表链表图式</p>
+</blockquote>
+<h2 id="快表"><a href="#快表" class="headerlink" title="快表"></a>快表</h2><p>快表中同样包含128项，每项以单链表方式链接，在初始化时也与空表不同，初始化时的快表每一项都为空，且每项最多包含4个节点，故快表相比空表更容易填满</p>
+<p><img src="https://tcs.teambition.net/storage/3122ad524405ed171c40bfc0d8c7b8b600c9?Signature=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBcHBJRCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9hcHBJZCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9vcmdhbml6YXRpb25JZCI6IiIsImV4cCI6MTYxMzEzNDM1NywiaWF0IjoxNjEyNTI5NTU3LCJyZXNvdXJjZSI6Ii9zdG9yYWdlLzMxMjJhZDUyNDQwNWVkMTcxYzQwYmZjMGQ4YzdiOGI2MDBjOSJ9.ZUWsLQH9FOX6ObIfMfWFOSlwr0TkU5g6K2GwLPmAsZM&download=image.png"></p>
+<blockquote>
+<p>快表链表图示</p>
+</blockquote>
+<h1 id="堆块操作"><a href="#堆块操作" class="headerlink" title="堆块操作"></a>堆块操作</h1><p>堆块操作分为，释放、合并、分配三种，其合并是由堆管理系统完成的，其余都是程序中代码执行的</p>
+<h2 id="分配"><a href="#分配" class="headerlink" title="分配"></a>分配</h2><p>当分配事件发生后，存在三种分配方式，快表分配、空表分配、0号空表分配</p>
+<p>在快表分配时，寻找大小匹配的空闲块，将状态修改为占用态、把它从堆表中“卸下”，最后返回一个指向堆块块身的指针给程序使用</p>
+<p>空表分配时，会优先寻找最优的空闲块，如找不到，会寻找最小能满足要求的空闲块</p>
+<p>零号空表按大小升序的排列方式，保存了大小不同的堆块，在分配时会在此链表中反向查找最后一个块，也就是最大块，如果能满足需求，则重新正向搜素最小能满足空闲堆块分配</p>
+<p>”找零钱”，当空表中无法找到适当的堆块时，会找一个稍大些的堆块进行分配，在分配时将此堆块精确切割为所需大小，将大块堆块剩下的部分重新写入堆块的块首，并链入0号空表</p>
+<p>在快表中，只有精确匹配时才会分配，也就不存在“找零钱”的现象</p>
+<h2 id="释放"><a href="#释放" class="headerlink" title="释放"></a>释放</h2><p>释放堆块时，首先将堆块的状态设置为空闲，后将其链入相应的对表中，释放后的块会被链入对应项中链表的末尾，分配时同样也从链表末尾中取出来</p>
+<p>快表中最多保存4项内容</p>
+<h2 id="合并"><a href="#合并" class="headerlink" title="合并"></a>合并</h2><p>在反复申请释放堆内存后，避免产生内存碎片会出现堆块合并</p>
+<p>当堆管理系统发现两个空闲堆块彼此相邻的时候，会将两个堆块合并</p>
+<p>堆块合并包括，将两个块从空闲链表中卸下，合并堆块，调整合并后大块的块首信息，将新块重现链入空闲链表</p>
+<p>在具体分配和释放时，根据操作内存的大小不同，Windows采取的策略也不同，可以把内存分为3类：</p>
+<p>小块：SIZE &lt; 1KB</p>
+<p>大块：1KB &lt;= SIZE &lt; 512KB</p>
+<p>巨块：SIZE &gt;= 512KB</p>
+<p><img src="https://tcs.teambition.net/storage/312293d87194cefb0bf8cb3a1ccb4890cc63?Signature=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBcHBJRCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9hcHBJZCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9vcmdhbml6YXRpb25JZCI6IiIsImV4cCI6MTYxMzEzNDM1NywiaWF0IjoxNjEyNTI5NTU3LCJyZXNvdXJjZSI6Ii9zdG9yYWdlLzMxMjI5M2Q4NzE5NGNlZmIwYmY4Y2IzYTFjY2I0ODkwY2M2MyJ9.ejggQYi83o1JM3tiqkjUUNA7iTMZNB6mhqwTLMG9ONw&download=image.png"></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>分配</th>
+<th>释放</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>小块</td>
+<td>首先进行快表分配快表分配失败，使用空表分配空表分配失败，使用堆缓存分配堆缓存分配失败，0号空表分配0号空表分配失败，进行内存紧缩后再次尝试仍无法分配返回NULL</td>
+<td>优先链入快表（只能链入4个空闲块）若快表填满，链入空表</td>
+</tr>
+<tr>
+<td>大块</td>
+<td>首先使用堆缓存分配若堆缓存分配失败，使用零号空表的大块进行分配</td>
+<td>优先将其放入堆缓存若堆缓存满，链入零号空表</td>
+</tr>
+<tr>
+<td>巨块</td>
+<td>巨块申请很罕见，用虚方法分配，实际不是从堆区分配的</td>
+<td>直接释放没有堆表操作</td>
+</tr>
+</tbody></table>
+<h2 id="Windows-堆管理特点"><a href="#Windows-堆管理特点" class="headerlink" title="Windows 堆管理特点"></a>Windows 堆管理特点</h2><ol>
+<li><p>快表中的空闲块被设置为占用态，故不会发生堆块合并操作</p>
+</li>
+<li><p>快表只有精确匹配时才会分配，不存在”次优解”和“找零钱”</p>
+</li>
+<li><p>快表是单链表，操作会比双链表简单，插入删除都少用很多指令</p>
+</li>
+<li><p>在分配与释放时总是优先使用快表，失败后才用空表</p>
+</li>
+<li><p>快表只有4项，很容易被填满，所以空表也是频繁使用的</p>
+</li>
+</ol>
+<h1 id="堆调试"><a href="#堆调试" class="headerlink" title="堆调试"></a>堆调试</h1><p>在调试堆时，不可以直接使用调试器加载exe进行调试，当直接加载时，exe被标记为调试模式，在调试状态下将会启用调试态对管理策略，主要差异如下：</p>
+<ol>
+<li><p>调试堆不使用快表，只使用空表分配</p>
+</li>
+<li><p>所有堆块都被加上了多余的16字节尾部，用来防止溢出（防止程序溢出而不是堆溢出攻击），这包括8字节的0xAB和8字节的0x00</p>
+</li>
+<li><p>块首的标识位不同</p>
+</li>
+</ol>
+<p>当代码在调试状态下正常运行，在Release模式下崩溃，很有可能就是这个原因</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;stdio.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;stdlib.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HLOCAL h1,h2,h3,h4,h5,h6;</span><br><span class="line">	HANDLE hp;</span><br><span class="line">	hp = HeapCreate(<span class="number">0</span>, <span class="number">0x1000</span>, <span class="number">0x10000</span>);</span><br><span class="line"></span><br><span class="line">	_asm <span class="keyword">int</span> <span class="number">3</span></span><br><span class="line"></span><br><span class="line">	h1 = HeapAlloc(hp, HEAP_ZERO_MEMORY, <span class="number">3</span>);</span><br><span class="line">	h2 = HeapAlloc(hp, HEAP_ZERO_MEMORY, <span class="number">5</span>);</span><br><span class="line">	h3 = HeapAlloc(hp, HEAP_ZERO_MEMORY, <span class="number">6</span>);</span><br><span class="line">	h4 = HeapAlloc(hp, HEAP_ZERO_MEMORY, <span class="number">8</span>);</span><br><span class="line">	h5 = HeapAlloc(hp, HEAP_ZERO_MEMORY, <span class="number">19</span>);</span><br><span class="line">	h6 = HeapAlloc(hp, HEAP_ZERO_MEMORY, <span class="number">24</span>);</span><br><span class="line"></span><br><span class="line">	HeapFree(hp, <span class="number">0</span>, h1);</span><br><span class="line">	HeapFree(hp, <span class="number">0</span>, h3);</span><br><span class="line">	HeapFree(hp, <span class="number">0</span>, h5);</span><br><span class="line"></span><br><span class="line">	HeapFree(hp, <span class="number">0</span>, h4);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将代码编译为Release模式后并运行，当代码运行到第11行会出现异常，这时Windows会提示你是否需要附加到调试器，在此附加到调试器即可进行调试</p>
+<h2 id="堆结构"><a href="#堆结构" class="headerlink" title="堆结构"></a>堆结构</h2><p>运行上述代码并附加到调试器后，EAX中存储的就是HeapCreate返回的内存地址（句柄）</p>
+<p>以此地址为基地址，+0x178的偏移位置就是空表的位置</p>
+<p><img src="https://tcs.teambition.net/storage/3122a2469faebce21c3d9270818b9aeaef7a?Signature=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBcHBJRCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9hcHBJZCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9vcmdhbml6YXRpb25JZCI6IiIsImV4cCI6MTYxMzEzNDM1NywiaWF0IjoxNjEyNTI5NTU3LCJyZXNvdXJjZSI6Ii9zdG9yYWdlLzMxMjJhMjQ2OWZhZWJjZTIxYzNkOTI3MDgxOGI5YWVhZWY3YSJ9.L89DzIjfHmN9_j9f0QUAsNdY81e_yNZLr0hGDK22AD0&download=image.png"></p>
+<p>每8个字节为空表的一项，在这里注意到除了0项外的所有空表项都是指向自身</p>
+<p>跳转到0号空表地址处</p>
+<p><img src="https://tcs.teambition.net/storage/31229b1c4df8ec4931bbe81fe468e64da38c?Signature=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBcHBJRCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9hcHBJZCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9vcmdhbml6YXRpb25JZCI6IiIsImV4cCI6MTYxMzEzNDM1NywiaWF0IjoxNjEyNTI5NTU3LCJyZXNvdXJjZSI6Ii9zdG9yYWdlLzMxMjI5YjFjNGRmOGVjNDkzMWJiZTgxZmU0NjhlNjRkYTM4YyJ9.I3eOZBf9WsxKEbnvphzFAlzhJBICkVaNOF9RER8Rc2Y&download=image.png"></p>
+<p>此地址（3A0688）保存的第一个地址为链表的上一个节点，（3A068C）保存的第二个地址为下一个节点</p>
+<p><img src="https://tcs.teambition.net/storage/312269e739678eaf3c3a5773ae40e7c73563?Signature=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBcHBJRCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9hcHBJZCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9vcmdhbml6YXRpb25JZCI6IiIsImV4cCI6MTYxMzEzNDM1NywiaWF0IjoxNjEyNTI5NTU3LCJyZXNvdXJjZSI6Ii9zdG9yYWdlLzMxMjI2OWU3Mzk2NzhlYWYzYzNhNTc3M2FlNDBlN2M3MzU2MyJ9.WG8cs4hfUuSXsZeCbyXw2LJWTXt4vUaQOrweOvhyvtA&download=image.png"></p>
+<p>此地址-8 *<em>（</em>（DWORD*)3A688 - 8) **中的4个字节，保存了这个堆块的大小</p>
+<p>这4个字节分为两部分，每两个字节为一部分，转换成数值为0x130 和 0x8，0x130代表当前堆块的大小为 0x130 * 8，0x8代表上一个堆块占用的空间为0x8 * 0x8</p>
+<p>此地址-4 *<em>（</em>（DWORD*)3A688 - 4) **中的4个字节，保存了这个堆块的一些标志位，详见下图</p>
+<p><img src="https://tcs.teambition.net/storage/3122cbd6ccb2c1f24858a0d7f35c6ff08447?Signature=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBcHBJRCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9hcHBJZCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9vcmdhbml6YXRpb25JZCI6IiIsImV4cCI6MTYxMzEzNDM1NywiaWF0IjoxNjEyNTI5NTU3LCJyZXNvdXJjZSI6Ii9zdG9yYWdlLzMxMjJjYmQ2Y2NiMmMxZjI0ODU4YTBkN2YzNWM2ZmYwODQ0NyJ9.Rt-Yl9VjlUVeHL7b1FR2_rgyMV-_cJjAWURk0Fk7284&download=image.png"></p>
+<blockquote>
+<p>在3A0680开始后的8个字节为块头，而链表中保存的地址跳过了这8个字节，但是在块大小中是包含这8个字节的，此堆块的大小为0x130 * 8，在这个大小中是包含块头的8个字节大小的</p>
+</blockquote>
+<blockquote>
+<p>其他非0项空表的结构与其相同</p>
+</blockquote>
+<h2 id="运行流程"><a href="#运行流程" class="headerlink" title="运行流程"></a>运行流程</h2><p>单步执行过第一个分配操作之后，此次申请将会在0项空表中进行分割，分割后重新修改两个块的块头信息，结束之后将标志位设置Busy，并将地址返回</p>
+<p>在第一次释放时，根据释放的大小 / 8 决定将这个堆块放入空表的哪一项中，并修改其标志位</p>
+<p>出现多次释放时，若两个块空闲块相邻，将合并这几个堆块，后修改其块首，使用新的堆块大小 / 8，来放入对应空表的位置</p>
+<p>当多次释放后，再次申请时优先在空表中查找符合大小的堆块，并在链表尾端摘出此堆块，如果存在，返回给程序使用，如不存在…(详见堆块操作中的分配部分)</p>
+<h2 id="快表问题"><a href="#快表问题" class="headerlink" title="快表问题"></a>快表问题</h2><p>在上面的代码中是没有用到快表的，若想使用快表，需要将上面代码的第9行替换为</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hp = HeapCreate(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这时空快表就会被启用了</p>
+<p>快表被启用后，HeapCreate返回的地址 + 0x688 处将不会是0号空表指向的位置了，这个地址被快表占领了</p>
+<p>在上面运行流程的释放过程也会发生变化，释放时优先释放到快表结构中，释放到快表时，不会将堆块的块头标志位修改为空闲状态，也是因为这个原因快表中不会出现合并的情况</p>
+<p>快表中的每项只保存4个堆块，如快表[4]对应的链表中，已经有了4个堆块，那么又产生了一次释放，对应的快表项还是快表[4]，在这种情况下会将其保存到空表中</p>
+<p>在快表启用的状态下，多次释放后，再次申请时优先在快表中查找符合大小的堆块，并在链表尾端摘出此堆块，如没有则在空表中查找，如果存在，返回给程序使用，如不存在…(详见堆块操作中的分配部分)</p>
+<h1 id="溢出利用点分析-DWORD-SHOOT"><a href="#溢出利用点分析-DWORD-SHOOT" class="headerlink" title="溢出利用点分析 DWORD SHOOT"></a>溢出利用点分析 DWORD SHOOT</h1><p>在上述中，如果出现申请堆空间的情况，如空表中出现大小匹配的块，那么将在空表[*]的位置中取出链表指针，并将链表中的最后一项摘下来返回程序使用</p>
+<p>这时就产生了一次链表摘除操作，链表摘除时代码模拟：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">remove</span><span class="params">(ListNode *node)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	node-&gt;blink-&gt;flink = node-&gt;flink;</span><br><span class="line">	node-&gt;flink-&gt;blink = node-&gt;blink;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们通过溢出的方式修改node的两个节点的内容来进行对某一内存的修改</p>
+<p>首先我们需要申请堆块，大小随意如0x200，假定地址为0x401000，那么0x401200处为下一个堆块的块头，保存下一个堆块的大小和标志，则0x401208处则保存了下一个堆块的链表数据，</p>
+<p>我们通过溢出的方式将下一个堆块的链表中的两个数据进行修改，这样当堆管理器对这个堆块进行操作的时候（合并、分配、摘除），将会出发Dword Shoot</p>
+<p>Good Job</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">BarretGuy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://basicbit.cn/2019/04/01/2019-04-01-Note0-堆栈结构 &amp; 溢出笔记/">https://basicbit.cn/2019/04/01/2019-04-01-Note0-堆栈结构 &amp; 溢出笔记/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><nav id="pagination"><div class="next-post pull-right"><a href="/2019/03/01/2019-03-01-%E7%BD%91%E6%98%93%E6%B8%B8%E6%88%8F%E7%9A%84%E5%9B%9B%E7%A7%8D%E8%A7%A3%E5%AF%86&amp;%E8%A7%A3%E5%8C%85%EF%BC%8C%E9%99%84%E5%B7%A5%E5%85%B7/"><span>网易游戏的四种解密&amp;解包，附工具</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(img/c-11.png)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By BarretGuy</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>

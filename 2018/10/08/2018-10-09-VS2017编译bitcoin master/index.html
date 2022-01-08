@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="VS2017编译 Bitcoin master"><meta name="keywords" content=""><meta name="author" content="BarretGuy"><meta name="copyright" content="BarretGuy"><title>VS2017编译 Bitcoin master | BasicBit</title><link rel="shortcut icon" href="/img/fav.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '6.0.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#VS2017%E7%BC%96%E8%AF%91-Bitcoin-master-with-Qt"><span class="toc-number">1.</span> <span class="toc-text">VS2017编译 Bitcoin master with Qt</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E6%BA%90%E7%A0%81"><span class="toc-number">1.1.</span> <span class="toc-text">下载源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96Vcpkg"><span class="toc-number">1.2.</span> <span class="toc-text">初始化Vcpkg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="toc-number">1.3.</span> <span class="toc-text">安装依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91bitcoin-qt"><span class="toc-number">1.4.</span> <span class="toc-text">编译bitcoin-qt</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A6%96%E5%85%88%E6%88%91%E4%BB%AC%E8%A6%81%E5%85%88%E7%BC%96%E8%AF%91Protobuf-%E5%BA%93"><span class="toc-number">1.4.1.</span> <span class="toc-text">首先我们要先编译Protobuf 库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A5%E4%B8%8B%E6%9D%A5%E6%88%91%E4%BB%AC%E8%A6%81%E8%87%AA%E5%B7%B1%E7%BC%96%E8%AF%91static-qt"><span class="toc-number">1.4.2.</span> <span class="toc-text">接下来我们要自己编译static qt</span></a></li></ol></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://file.qqtouxiang.com/qinglv/2020-07-10/968d1e73115194c7e70e2f729bb016b2.jpeg"></div><div class="author-info__name text-center">BarretGuy</div><div class="author-info__description text-center">不定期更新操作系统，编程，逆向，破解，算法等技术</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">45</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">9</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">4</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(http://imgset.gitee.io/img/vs2017.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">BasicBit</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/Develop">Develop</a><a class="site-page" href="/Note">Note</a><a class="site-page" href="/Reverse">Reverse</a><a class="site-page" href="/OS">OS</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> Search</span></a></span></div><div id="post-info"><div id="post-title">VS2017编译 Bitcoin master</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-10-08</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="VS2017编译-Bitcoin-master-with-Qt"><a href="#VS2017编译-Bitcoin-master-with-Qt" class="headerlink" title="VS2017编译 Bitcoin master with Qt"></a>VS2017编译 Bitcoin master with Qt</h1><h2 id="下载源码"><a href="#下载源码" class="headerlink" title="下载源码"></a>下载源码</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/bitcoin/bitcoin</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="http://imgset.gitee.io/img/1539065582759.png" alt="1539065582759"></p>
+<p>下载Vcpkg   用来配置bitcoin需要用到的第三方库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span>  https://github.com/Microsoft/vcpkg</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://imgset.gitee.io/img/1539065625326.png" alt="1539065625326"></p>
+<h2 id="初始化Vcpkg"><a href="#初始化Vcpkg" class="headerlink" title="初始化Vcpkg"></a>初始化Vcpkg</h2><p>打开cmd   </p>
+<p>​    cd vcpkg-master </p>
+<p>执行 bootstrap-vcpkg.bat 进行编译 vcpkg.exe</p>
+<p>编译结束就可以在vcpkg根目录看到vcpkg.exe了</p>
+<p><img src="http://imgset.gitee.io/img/1539065902565.png" alt="1539065902565"></p>
+<p>然后，运行如下命令使计算机的所有用户都可以使用vcpkg</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vcpkg integrate install</span><br></pre></td></tr></table></figure>
+
+<p>初始化搞定</p>
+<h2 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h2><p>在命令行中执行</p>
+<p>vcpkg install boost:x86-windows-static</p>
+<p>install 安装命令</p>
+<p>boost 库的名字</p>
+<p>‘ : ’后面是安装库的版本  在我我们安装库的版本全部为32位静态库 如果你想安装动态库，直接干掉-static 就行了，如果编译64位，把x86换成x64。</p>
+<p>接下来执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vcpkg install libevent:x86windows-static</span><br><span class="line">vcpkg install openssl:x86-windows-static</span><br><span class="line">vcpkg install zeromq:x86-windows-static</span><br><span class="line">vcpkg install berkeleydb:x86-windows-static</span><br><span class="line">vcpkg install secp256k1:x86-windows-static</span><br><span class="line">vcpkg install leveldb:x86-windows-static</span><br></pre></td></tr></table></figure>
+
+<p>这个过程会很耗费时间    建议挂一个vpn   </p>
+<p>安装完成之后 </p>
+<p>我们打开到Bitcoin源码目录下面的build_msvc文件夹  看到msvc-autogen.py文件</p>
+<p>执行这个文件  python msvc-autogen.py</p>
+<p><img src="http://imgset.gitee.io/img/1539069538346.png" alt="1539069538346"></p>
+<p>现在我们就可以打开 build_msvc目录下的bitcoin.sln了  </p>
+<p>现在就可以编译比特币了  </p>
+<p>编译完之后并没有bitcoin-qt </p>
+<h2 id="编译bitcoin-qt"><a href="#编译bitcoin-qt" class="headerlink" title="编译bitcoin-qt"></a>编译bitcoin-qt</h2><h3 id="首先我们要先编译Protobuf-库"><a href="#首先我们要先编译Protobuf-库" class="headerlink" title="首先我们要先编译Protobuf 库"></a>首先我们要先编译Protobuf 库</h3><p><a target="_blank" rel="noopener" href="https://github.com/yuanbi/VS2017-Bitcoin">下载链接</a></p>
+<p>我下载的是2.6.1的版本</p>
+<p><img src="http://imgset.gitee.io/img/1539072815818.png" alt="1539072815818"></p>
+<p>打开C:\deps\protobuf-2.6.1\vsprojects下的protobuf.sln，生成解决方案</p>
+<p>Protobuf库是用来把paymentrequest.proto文件生成对应的.h、.cc文件的</p>
+<p>打开命令行 进入C:\bitcoin-master\src\qt 目录</p>
+<p>在这里执行protoc.exe  </p>
+<p>命令格式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">protoc --proto_path=e:/bitcoin/qt --cpp_out=e:/bitcoin/qt e:/bitcoin/qt/paymentrequest.proto</span><br></pre></td></tr></table></figure>
+
+<h3 id="接下来我们要自己编译static-qt"><a href="#接下来我们要自己编译static-qt" class="headerlink" title="接下来我们要自己编译static qt"></a>接下来我们要自己编译static qt</h3><p>在我之前的博客有教程，在这就不说了。<a target="_blank" rel="noopener" href="https://www.hackyuan.top/2018/10/08/VS2017%E9%9D%99%E6%80%81%E7%BC%96%E8%AF%91QT-with-openssl/">电梯</a></p>
+<p>编译完static qt之后  需要在VS2017中安装一个Qt插件</p>
+<p>打开VS2017 选中  工具—-&gt;拓展和更新</p>
+<p><img src="http://imgset.gitee.io/img/1539070073798.png" alt="1539070073798"></p>
+<p>点击 联机  –  搜索Qt  – 下载</p>
+<p><img src="http://imgset.gitee.io/img/1539070118357.png" alt="1539070118357"></p>
+<p>下载完成后    会出现“扩展和更新窗口”的底部会出现“更新已列入计划…”的提示信息</p>
+<p>关闭VS2017 </p>
+<p>会弹出安装界面  点击修改即可</p>
+<p><img src="http://imgset.gitee.io/img/1539070250808.png" alt="1539070250808"></p>
+<p>安装结束之后打开VS2017</p>
+<p>在菜单栏就可以看见 Qt VS Tools 了</p>
+<p><img src="http://imgset.gitee.io/img/1539070318094.png" alt="1539070318094"></p>
+<p>接下来添加我们之前编译的Static Qt 到 Qt VS Tools</p>
+<p><img src="http://imgset.gitee.io/img/1539070415782.png" alt="1539070415782"></p>
+<p>点击Qt Options</p>
+<p><img src="http://imgset.gitee.io/img/1539070436942.png" alt="1539070436942"></p>
+<p>点击Add</p>
+<p><img src="http://imgset.gitee.io/img/1539070489872.png" alt="1539070489872"></p>
+<p>选中我们编译的Static Qt的目录</p>
+<p>点击确定  </p>
+<p>搞定</p>
+<p>接下来我们需要创建一个Qt项目</p>
+<p><img src="http://imgset.gitee.io/img/1539070779780.png" alt="1539070779780"></p>
+<p>选中Qt Gui Application</p>
+<p><img src="http://imgset.gitee.io/img/1539070799504.png" alt="1539070799504"></p>
+<p>添加Bitcoin-qt 源码进来</p>
+<p><img src="http://imgset.gitee.io/img/1539070877737.png" alt="1539070877737"></p>
+<p>我们需要添加</p>
+<p>bitcoin-master\src\qt下面所有文件 </p>
+<p>bitcoin-master\src\interfaces下面所有文件 </p>
+<p>bitcoin-master\src\bitcoin-config.h  这个文件包含了一些预定义的宏  可以在我的GitHub上面下载 <a target="_blank" rel="noopener" href="https://github.com/yuanbi/VS2017-Bitcoin">直达电梯</a></p>
+<p>添加结束之后  打开项目属性 – C/C/++ – 常规 – 附加包含目录</p>
+<p><img src="http://imgset.gitee.io/img/1539071829785.png" alt="1539071829785"></p>
+<p>在这里需要添加 我们之前 在vcpkg 编译库的include目录</p>
+<p>添加之前编译bitcoin-master中的编译生成目录 </p>
+<p>我这里是       C:\bitcoin-master\build_msvc\Release</p>
+<p>添加Bitcoin-master\src  比特币源码目录</p>
+<p>添加Qt plugins 目录</p>
+<p>添加protobuf-2.6.1\src  protocbuf源码目录</p>
+<p><img src="http://imgset.gitee.io/img/1539073087038.png" alt="1539073087038"></p>
+<p>接下来选中代码生成 – 运行库  修改为 多线程-MT</p>
+<p><img src="http://imgset.gitee.io/img/1539073463472.png" alt="1539073463472"></p>
+<p>选中 预处理器 – 预处理器定义</p>
+<p>添加下面的宏进去 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">WIN32</span><br><span class="line">_WIN32_WINDOWS</span><br><span class="line">HAVE_WORKING_BOOST_SLEEP</span><br><span class="line">LEVELDB_PLATFORM_WINDOWS</span><br><span class="line">OS_WIN</span><br><span class="line">ENABLE_WALLET</span><br><span class="line">_CRT_SECURE_NO_WARNINGS</span><br><span class="line">_SCL_SECURE_NO_WARNINGS</span><br><span class="line">HAVE_CONFIG_H</span><br><span class="line">_X86_</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://imgset.gitee.io/img/1539073560643.png" alt="1539073560643"></p>
+<p>接着 选中 配置属性 – 链器 – 常规 –附加库目录</p>
+<p>添加Qt plugins 目录</p>
+<p>添加之前编译bitcoin-master中编译的lib目录</p>
+<p>我这里是 C:\bitcoin-master\build_msvc\Release</p>
+<p>添加qtserialport lib目录 这个如果没有  自行下载编译 </p>
+<p>添加Protocbuf下lib 目录</p>
+<p>我这里的目录是</p>
+<p>C:\qtserialport\build-qtserialport-Qt_5_11_1_msvc2017_x86_static_temporary-Release\lib</p>
+<p>在这里需要添加 我们之前 在vcpkg 编译库的lib目录</p>
+<p><img src="http://imgset.gitee.io/img/1539073929179.png" alt="1539073929179"></p>
+<p>接着选中连接器 – 输入 –  附加依赖项</p>
+<p>添加如下lib</p>
+<p>Qt5ThemeSupport.lib<br>qflatpak.lib<br>Qt5FbSupport.lib<br>Qt5EventDispatcherSupport.lib<br>shell32.lib<br>dwmapi.lib<br>oleaut32.lib<br>Qt5Widgets.lib<br>Qt5Gui.lib<br>Qt5Core.lib<br>Mincore.lib<br>crypt32.lib<br>Qt5OpenGLExtensions.lib<br>Qt5FontDatabaseSupport.lib<br>Qt5WindowsUIAutomationSupport.lib<br>Qt5OpenGL.lib<br>qtlibpng.lib<br>qtuiotouchplugin.lib<br>windowsprintersupport.lib<br>Qt5Xml.lib<br>qgenericbearer.lib<br>qgif.lib<br>qico.lib<br>qjpeg.lib<br>qsqlodbc.lib<br>qsqlite.lib<br>qwindowsvistastyle.lib<br>qdirect2d.lib<br>libEGL.lib<br>libGLESv2.lib<br>qtfreetype.lib<br>qtmain.lib<br>qtpcre2.lib<br>qtharfbuzz.lib<br>qminimal.lib<br>qoffscreen.lib<br>qwindows.lib<br>imm32.lib<br>winmm.lib<br>opengl32.lib<br>ws2_32.lib<br>wsock32.lib<br>Iphlpapi.lib<br>libbitcoin_crypto.lib<br>libbitcoin_cli.lib<br>libbitcoin_server.lib<br>libbitcoin_wallet.lib<br>libbitcoin_zmq.lib<br>libbitcoin_common.lib<br>libbitcoin_util.lib<br>libunivalue.lib<br>libbitcoin_consensus.lib<br>boost_filesystem-vc140-mt.lib<br>libprotoc.lib<br>libprotobuf.lib<br>boost_atomic-vc140-mt.lib<br>boost_chrono-vc140-mt.lib<br>boost_container-vc140-mt.lib<br>boost_context-vc140-mt.lib<br>boost_contract-vc140-mt.lib<br>boost_coroutine-vc140-mt.lib<br>boost_date_time-vc140-mt.lib<br>boost_exception-vc140-mt.lib<br>boost_fiber-vc140-mt.lib<br>boost_graph-vc140-mt.lib<br>boost_iostreams-vc140-mt.lib<br>boost_locale-vc140-mt.lib<br>boost_log-vc140-mt.lib<br>boost_log_setup-vc140-mt.lib<br>boost_math_c99-vc140-mt.lib<br>boost_math_c99f-vc140-mt.lib<br>boost_math_c99l-vc140-mt.lib<br>boost_math_tr1-vc140-mt.lib<br>boost_math_tr1f-vc140-mt.lib<br>boost_math_tr1l-vc140-mt.lib<br>boost_program_options-vc140-mt.lib<br>boost_python36-vc140-mt.lib<br>boost_random-vc140-mt.lib<br>boost_regex-vc140-mt.lib<br>boost_serialization-vc140-mt.lib<br>boost_signals-vc140-mt.lib<br>boost_stacktrace_noop-vc140-mt.lib<br>boost_stacktrace_windbg-vc140-mt.lib<br>boost_stacktrace_windbg_cached-vc140-mt.lib<br>boost_system-vc140-mt.lib<br>boost_thread-vc140-mt.lib<br>boost_timer-vc140-mt.lib<br>boost_type_erasure-vc140-mt.lib<br>boost_unit_test_framework-vc140-mt.lib<br>boost_wave-vc140-mt.lib<br>boost_wserialization-vc140-mt.lib<br>zlib.lib<br>ssleay32.lib<br>secp256k1.lib<br>python36.lib<br>lzma.lib<br>libzmq-mt-s-4_3_1.lib<br>libeay32.lib<br>libdb48.lib<br>leveldb.lib<br>event_extra.lib<br>event_core.lib<br>event.lib<br>bz2.lib<br>Shlwapi.lib<br>Qt5Network.lib<br>glu32.lib<br>Qt5SerialPort.lib<br>Qt5Sql.lib<br>Qt5Concurrent.lib<br>Qt5DBus.lib<br>Qt5PrintSupport.lib</p>
+<p><img src="http://imgset.gitee.io/img/1539073995808.png" alt="1539073995808"></p>
+<p>点击确定 </p>
+<p>接下来就可以编译了</p>
+<p><img src="http://imgset.gitee.io/img/1539074425293.png" alt="1539074425293"></p>
+<p><img src="http://imgset.gitee.io/img/1539074472422.png" alt="1539074472422"></p>
+<p>Good Job.</p>
+<p><img src="http://imgset.gitee.io/img/1571159956351.png" alt="1571159956351"></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">BarretGuy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://basicbit.cn/2018/10/08/2018-10-09-VS2017编译bitcoin master/">https://basicbit.cn/2018/10/08/2018-10-09-VS2017编译bitcoin master/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/10/08/2018-10-08-VS2017%E9%9D%99%E6%80%81%E7%BC%96%E8%AF%91QT%20with%20openssl/"><i class="fa fa-chevron-left">  </i><span>VS2017静态编译QT with openssl</span></a></div><div class="next-post pull-right"><a href="/2018/01/16/2018-11-18-Inline%20Hook/"><span>Inline Hook</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(http://imgset.gitee.io/img/vs2017.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By BarretGuy</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>

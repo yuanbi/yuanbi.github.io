@@ -1,0 +1,126 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Window PE -- 文件头"><meta name="keywords" content="PE"><meta name="author" content="BarretGuy"><meta name="copyright" content="BarretGuy"><title>Window PE -- 文件头 | BasicBit</title><link rel="shortcut icon" href="/img/fav.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '6.0.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Window-PE-%E2%80%93-%E6%96%87%E4%BB%B6%E5%A4%B4"><span class="toc-number">1.</span> <span class="toc-text">Window PE – 文件头</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#PE%E6%96%87%E4%BB%B6%E5%A4%B4"><span class="toc-number">1.1.</span> <span class="toc-text">PE文件头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Signature%E5%AD%97%E6%AE%B5"><span class="toc-number">1.2.</span> <span class="toc-text">Signature字段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IMAGE-FILE-HEADER%E7%BB%93%E6%9E%84"><span class="toc-number">1.3.</span> <span class="toc-text">IMAGE_FILE_HEADER结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IMAGE-OPTIONAL-HEADER%E7%BB%93%E6%9E%84"><span class="toc-number">1.4.</span> <span class="toc-text">IMAGE_OPTIONAL_HEADER结构</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://file.qqtouxiang.com/qinglv/2020-07-10/968d1e73115194c7e70e2f729bb016b2.jpeg"></div><div class="author-info__name text-center">BarretGuy</div><div class="author-info__description text-center">不定期更新操作系统，编程，逆向，破解，算法等技术</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">45</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">9</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">4</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(http://imgset.gitee.io/img/windows_keyboard.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">BasicBit</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/Develop">Develop</a><a class="site-page" href="/Note">Note</a><a class="site-page" href="/Reverse">Reverse</a><a class="site-page" href="/OS">OS</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> Search</span></a></span></div><div id="post-info"><div id="post-title">Window PE -- 文件头</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-11-01</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="Window-PE-–-文件头"><a href="#Window-PE-–-文件头" class="headerlink" title="Window PE – 文件头"></a>Window PE – 文件头</h1><h2 id="PE文件头"><a href="#PE文件头" class="headerlink" title="PE文件头"></a>PE文件头</h2><p>紧跟着DOSstub的是PE文件头（PEHeader）。“PEHeader，，是PE关结构NT映像头（IMAGE_NT_HEADERS）的简称，其中包含许多PE装载器能用到的重要字段。当执行体在支持PE文件结构的操作系统中执行时，PE装载器将从IMAGE_DOS_HEADER结构的e_lfanew字段里找到PEHeader的起始偏移量，用其加上基址，得到PE文件头的指针。</p>
+<p>PNTHeader = lmageBase + dosHeader-&gt;e_Ifanew</p>
+<p>实际上有两个版本的IMAGENT_HEADER结构，一个是为PE32(32位版本）可执行文件准备的，另一个是PE32+(64位版本）。因为它们几乎没有区别，所以在以后的讨论中将不作区分。</p>
+<p>IMAGE_NT_HEADER是由3个字段（左边的数字是到PE文件头的偏移量）组成的。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>PE32＋的IMAGE_NT_HEADER64结构如下。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="Signature字段"><a href="#Signature字段" class="headerlink" title="Signature字段"></a>Signature字段</h2><p>在一个有效的PE文件里，Signature字段被设置为Ox00004550,ASCII码字符是“PE\0\0。”，“#define IMAGE_NT_SIGNATURE”定义了这个值，示例如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> IMAGE_NT_SIGNATURE   0x00004550</span></span><br></pre></td></tr></table></figure>
+
+<p>PE\0\0”是PE文件头的开始，MS一DOS头部的ιlianew字段正是指向“PE\0\0”的。</p>
+<h2 id="IMAGE-FILE-HEADER结构"><a href="#IMAGE-FILE-HEADER结构" class="headerlink" title="IMAGE_FILE_HEADER结构"></a>IMAGE_FILE_HEADER结构</h2><p>lMAGE_FILE_HEADER（映像文件头）结构包含PE文件的一些基本信息，最重要的是，其中的一个域指出了IMAGE_OPTIONAL_HEADER的大小。下面介绍IMAGE_FILE_HEADER结构的各个字段，并对这些字段进行说明。这个结构也能在COFF格式的OBJ文件的开始处找到，因此也称其为“COFF File Header”注释中的偏移量是基于PE文件头（IMAGE_NT_HEADERS）的。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_FILE_HEADER</span> &#123;</span></span><br><span class="line">  WORD  Machine;</span><br><span class="line">  WORD  NumberOfSections;</span><br><span class="line">  DWORD TimeDateStamp;</span><br><span class="line">  DWORD PointerToSymbolTable;</span><br><span class="line">  DWORD NumberOfSymbols;</span><br><span class="line">  WORD  SizeOfOptionalHeader;</span><br><span class="line">  WORD  Characteristics;</span><br><span class="line">&#125; IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;</span><br></pre></td></tr></table></figure>
+
+<p>用十六进制工具查看IMAGE_FILE_HEADER结构的情况，如图所示，图中的标号对应于以下字段。</p>
+<p><img src="http://imgset.gitee.io/img/1554716150866.png" alt="1554716150866"></p>
+<ol>
+<li>Machine：可执行文件的目标CPU类型。PE文件可以在多种机器上使用，不同平台上指令的机器码不同。如表是几种典型的机器类型标志。<img src="http://imgset.gitee.io/img/1554716220204.png" alt="1554716220204"></li>
+<li>NumberOfSections：区块（Section）的数目，块表紧跟在IMAGE_NT_HEADERS后面。</li>
+<li>TimeDateStamp：表示文件的创建时间。这个值是自1970年l月1日以来用格林威治时间(GMT）计算的秒数，是一个比文件系统的日期／时间更精确的文件创建时间指示器。将这个值翻译为易读的字符串需要使用＿clime函数（它是时区敏感型的）。另一个对此字段计算有用的函数是gmtime。</li>
+<li>PointerToSymbolTable:COFF符号表的文件偏移位置（参见Microsoft规范的5.4节）。因为采用了较新的debug格式，所以COFF符号表在PE文件中较为少见。在VisualStudio.NET出现之前，COFF符号表可以通过设置链接器开关（/DEBUGTYPE:COFF）来创建。COFF符号表几乎总能在目标文件中找到，若没有符号表存在，将此值设置为0。</li>
+<li>NumberOISymbols：如果有COFF符号表，它代表其中的符号数目。COFF符号是一个大小固定的结构，如果想找到COFF符号表的结束处，需要使用这个域。</li>
+<li>SizeOfOptionalHeader：紧跟IMAGEFILE_HEADER，表示数据的大小。在PE文件中，这个数据结构叫作IMAGE_O阿IONAL_HEADER，其大小依赖于当前文件是32位还是64位文件。对32位PE文件，这个域通常是OOEOh；对64位PE32＋文件，这个域是OOFOh。不管怎样，这些是要求的最小值，较大的值也可能会出现。</li>
+<li>Characteristics：文件属性，有选择地通过几个值的运算得到。这些标志的有效值是定义于winnt.h内的IMAGE_FILE_xxx值，具体如表l1.2所示。普通EXE文件的这个字段的值一般是010仙，DLL文件的这个字段的值一般是2102h。</li>
+</ol>
+<p><img src="http://imgset.gitee.io/img/1554716339696.png" alt="1554716339696"></p>
+<h2 id="IMAGE-OPTIONAL-HEADER结构"><a href="#IMAGE-OPTIONAL-HEADER结构" class="headerlink" title="IMAGE_OPTIONAL_HEADER结构"></a>IMAGE_OPTIONAL_HEADER结构</h2><p>尽管可选映像头（IMAGE_OPTIONAL_HEADER）是一个可选的结构，但IMAGE_FILE_HEADER结构不足以定义PE文件属性，因此可选映像头中定义了更多的数据，完全不必考虑两个结构的区别在哪里，将两者连起来就是一个完整的“PE文件头结构飞IMAGE_OPTIONAL_HEADER32结构如下，字段前的数字标出了字段相对于PE文件头的偏移量。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_OPTIONAL_HEADER</span> &#123;</span></span><br><span class="line">  WORD                 Magic;</span><br><span class="line">  BYTE                 MajorLinkerVersion;</span><br><span class="line">  BYTE                 MinorLinkerVersion;</span><br><span class="line">  DWORD                SizeOfCode;</span><br><span class="line">  DWORD                SizeOfInitializedData;</span><br><span class="line">  DWORD                SizeOfUninitializedData;</span><br><span class="line">  DWORD                AddressOfEntryPoint;</span><br><span class="line">  DWORD                BaseOfCode;</span><br><span class="line">  DWORD                BaseOfData;</span><br><span class="line">  DWORD                ImageBase;</span><br><span class="line">  DWORD                SectionAlignment;</span><br><span class="line">  DWORD                FileAlignment;</span><br><span class="line">  WORD                 MajorOperatingSystemVersion;</span><br><span class="line">  WORD                 MinorOperatingSystemVersion;</span><br><span class="line">  WORD                 MajorImageVersion;</span><br><span class="line">  WORD                 MinorImageVersion;</span><br><span class="line">  WORD                 MajorSubsystemVersion;</span><br><span class="line">  WORD                 MinorSubsystemVersion;</span><br><span class="line">  DWORD                Win32VersionValue;</span><br><span class="line">  DWORD                SizeOfImage;</span><br><span class="line">  DWORD                SizeOfHeaders;</span><br><span class="line">  DWORD                CheckSum;</span><br><span class="line">  WORD                 Subsystem;</span><br><span class="line">  WORD                 DllCharacteristics;</span><br><span class="line">  DWORD                SizeOfStackReserve;</span><br><span class="line">  DWORD                SizeOfStackCommit;</span><br><span class="line">  DWORD                SizeOfHeapReserve;</span><br><span class="line">  DWORD                SizeOfHeapCommit;</span><br><span class="line">  DWORD                LoaderFlags;</span><br><span class="line">  DWORD                NumberOfRvaAndSizes;</span><br><span class="line">  IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];</span><br><span class="line">&#125; IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;</span><br></pre></td></tr></table></figure>
+
+<p>IMAGE_OPTIONAL_HEADER64结构有少许变化，PE32中的BaseOfData不存在于PE32＋中，在PE32＋中Magic的值是020Bh。IMAGE_OPTIONAL_HEADER64结构如下。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_OPTIONAL_HEADER64</span> &#123;</span></span><br><span class="line">  WORD                 Magic;</span><br><span class="line">  BYTE                 MajorLinkerVersion;</span><br><span class="line">  BYTE                 MinorLinkerVersion;</span><br><span class="line">  DWORD                SizeOfCode;</span><br><span class="line">  DWORD                SizeOfInitializedData;</span><br><span class="line">  DWORD                SizeOfUninitializedData;</span><br><span class="line">  DWORD                AddressOfEntryPoint;</span><br><span class="line">  DWORD                BaseOfCode;</span><br><span class="line">  ULONGLONG            ImageBase;</span><br><span class="line">  DWORD                SectionAlignment;</span><br><span class="line">  DWORD                FileAlignment;</span><br><span class="line">  WORD                 MajorOperatingSystemVersion;</span><br><span class="line">  WORD                 MinorOperatingSystemVersion;</span><br><span class="line">  WORD                 MajorImageVersion;</span><br><span class="line">  WORD                 MinorImageVersion;</span><br><span class="line">  WORD                 MajorSubsystemVersion;</span><br><span class="line">  WORD                 MinorSubsystemVersion;</span><br><span class="line">  DWORD                Win32VersionValue;</span><br><span class="line">  DWORD                SizeOfImage;</span><br><span class="line">  DWORD                SizeOfHeaders;</span><br><span class="line">  DWORD                CheckSum;</span><br><span class="line">  WORD                 Subsystem;</span><br><span class="line">  WORD                 DllCharacteristics;</span><br><span class="line">  ULONGLONG            SizeOfStackReserve;</span><br><span class="line">  ULONGLONG            SizeOfStackCommit;</span><br><span class="line">  ULONGLONG            SizeOfHeapReserve;</span><br><span class="line">  ULONGLONG            SizeOfHeapCommit;</span><br><span class="line">  DWORD                LoaderFlags;</span><br><span class="line">  DWORD                NumberOfRvaAndSizes;</span><br><span class="line">  IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];</span><br><span class="line">&#125; IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;</span><br></pre></td></tr></table></figure>
+
+<p>用十六进制工具查看IMAGE_OPTIONAL_HEADER32结构，如下图，图中的标号对应于以下字段。</p>
+<p><img src="http://imgset.gitee.io/img/1554723046973.png" alt="1554723046973"></p>
+<ol>
+<li><p>Magic：这是一个标记字，说明文件是ROM映像（0107h）还是普通可执行的映像（010Bh),一般是010Bh,如果是PE32＋，则是020Bh。</p>
+</li>
+<li><p>MajorLinkerVersion：链接程序的主版本号。</p>
+</li>
+<li><p>MinorLinkerVersion：链接程序的次版本号。</p>
+</li>
+<li><p>SizeOfCode：有IMAGE_SCN_CNT_CODE属性的区块的总大小（只入不舍），这个值是向上对齐某一个值的整数倍。例如，本例是200h，即对齐的是一个磁盘扇区字节数（200h）的整数倍。在通常情况下，多数文件只有1个Code块，所以这个字段和.text块的大小匹配。</p>
+</li>
+<li><p>SizeOflnitializedData：已初始化数据块的大小，即在编译时所构成的块的大小（不包括代码段）。但这个数据不太准确。</p>
+</li>
+<li><p>SizeOfUninitializedData：未初始化数据块的大小，装载程序要在虚拟地址空间中为这些数据约定空间。这些块在磁盘文件中不占空间，就像“UninitializedData”这一术语所暗示的一样，这些块在程序开始运行时没有指定值。未初始化数据通常在.bss块中。</p>
+</li>
+<li><p>AddressOfE川ryPoint：程序执行人口RVA。对于DLL，这个人口点在进程初始化和关闭时及线程创建和毁灭时被调用。在大多数可执行文件中，这个地址不直接指向Main、WinMain或DllMain函数，而指向运行时的库代码井由它来调用上述函数。在DLL中，这个域能被设置为0，此时前面提到的通知消息都无法收到。链接器的/NOENTRY开关可以设置这个域为0。</p>
+</li>
+<li><p>BaseOfCode：代码段的起始RVA。在内存中，代码段通常在PE文件头之后，数据块之前。在Microsoft链接器生成的可执行文件中，RVA的值通常是lOOOh。Borland的白ink32用lrnageBase加第l个CodeSection的RVA，并将结果存入该字段。</p>
+</li>
+<li><p>BaseOfData：数据段的起始RVA。数据段通常在内存的末尾，即PE文件头和CodeSection之后。可是，这个域的值对于不同版本的Microsoft链接器是不一致的，在64位可执行文件中是不会出现的。</p>
+</li>
+<li><p>lmageBase：文件在内存中的首选载入地址。如果有可能（也就是说，如果目前没有其他文件占据这块地址，它就是正确对齐的并且是一个合法的地址），加载器会试图在这个地址载入PE文件。如果PE文件是在这个地址载人的，那么加载器将跳过应用基址重定位的步骤。</p>
+</li>
+<li><p>SectionAlignment：载入内存时的区块对齐大小。每个区块被载入的地址必定是本字段指定数值的整数倍。默认的对齐尺寸是目标CPU的页尺寸。对运行在Windows9x/Me下的用模式可执行文件，最小的对齐尺寸是每页1000h(4KB）。这个字段可以通过链接器的/ALIGN开关来设置。在IA-64上，这个字段是按8KB排列的。</p>
+</li>
+<li><p>FileAlignment：磁盘上PE文件内的区块对齐大小，组成块的原始数据必须保证从本字段的倍数地址开始。对于x86可执行文件，这个值通常是200h或1000h，这是为了保证块总是从磁盘的扇区开始，这个字段的功能等价于NE格式文件中的段／资源、对齐因子使用不同版本的Microsoft链接器，默认值会改变。这个值必须是2的幕，其最小值为200h而且，如果SectionAlignment小于CPU的页尺寸，这个域就必须与SectionA!ignment匹配。链器开关/OPT:WIN98设置x86可执行文件的对齐值为1000h,/OPT:NOWIN98设置对齐值为200h。</p>
+</li>
+<li><p>MajorOperatingSystemVersion：要求操作系统的最低版本号的主版本号。随着这么多版本的Windows的出现，这个字段显然变得不切题了</p>
+</li>
+<li><p>MinorOperatingSystemVersion：要求操作系统的最低版本号的次版本号。</p>
+</li>
+<li><p>MajorOperatingSystemVersion：该可执行文件的主版本号，由程序员定义。它不被系统使用，并可以设置为0，可以通过链接器的NERSION开关来设置。</p>
+</li>
+<li><p>MinorlmageVersion：该可执行文件的次版本号，由程序员定义。</p>
+</li>
+<li><p>MajorSubsystemVersion：要求最低子系统版本的主版本号。这个值与下一个字段一起，通常被设置为4，可以通过链接器开关／SUBSYSTEM来设置。</p>
+</li>
+<li><p>MinorSubsystemVersion：要求最低子系统版本的次版本号。</p>
+</li>
+<li><p>Win32VersionValue：另一个从来不用的字段，通常被设置为0。</p>
+</li>
+<li><p>SizeOflmage：映像载入内存后的总尺寸，是指载入文件从Irr吨eBase到最后一个块的大小。最后一个块根据其大小向上取整。</p>
+</li>
+<li><p>SizeOfHeaders:MS-DOS头部、PE文件头、区块表的总尺寸。这些项目出现在PE文件中的所有代码或数据区块之前，域值四舍五入至文件对齐值的倍数。</p>
+</li>
+<li><p>CheckSum：映像的校验和。IMAGEHLP.DLL中的CheckSumMappedFile函数可以计算该值。一般的EXE文件该值可以是0，但一些内核模式的驱动程序和系统DLL必须有一个校验和。当链接器的／RELEASE开关被使用时，校验和被置于文件中。</p>
+</li>
+<li><p>Subsystem：一个标明可执行文件所期望的子系统（用户界面类型）的枚举值。这个值只对EXE重要，如下表</p>
+<p><img src="http://imgset.gitee.io/img/1554723738509.png" alt="1554723738509"></p>
+</li>
+<li><p>DllCharacteristics:DllMain()函数何时被调用。默认值为0。</p>
+</li>
+<li><p>SizeOfStackReserve：在EXE文件里为线程保留的拢的大小。它在一开始只提交其中一部，只有在必要时才提交剩下的部分。</p>
+</li>
+<li><p>SizeOfStackCommit：在EXE文件里，一开始即被委派给拢的内存，默认值是4KB。</p>
+</li>
+<li><p>SizeOfHeapReserve：在EXE文件里，为进程的默认堆保留的内存，默认值是1MB。</p>
+</li>
+<li><p>SizeOfHeapCommit：在EXE文件里，委派给堆的内存，默认值是4KB 。</p>
+</li>
+<li><p>LoaderFlags：与调试有关，默认值为0。</p>
+</li>
+<li><p>NumberOfRvaAndSizes：数据目录的项数。这个字段的值从WindowsNT发布以来一直是16。</p>
+</li>
+<li><p>DataDirect01y[l6］：数据目录表，由数个相同的IMAGE_DATA_DIRECTORY结构组成，指向输出表、输入表、资源块等数据。IMAGE_DATADIRECTORY的结构定义如下。</p>
+</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>根据目录表成员的结构如下表所示，各项成员含义后面会详细介绍。</p>
+<p><img src="http://imgset.gitee.io/img/1554723877710.png" alt="1554723877710"></p>
+<p>PE文件定位输出表、输入表和资源等重要数据时，就是从IMAGE_DATA_DIRECTORY结构开始的。</p>
+<p>例PE.exe的数据目录表位于128h～1A7h，每个成员占8字节，分别指向相关的结构，如图11.6所示。128h数据目录表的第1项，其值为0，即这个实例的输出表地址与大小皆为0，表示无输出表。130h是第2项，表示输入表地址为2040h(RVA），大小为3Ch。</p>
+<p><img src="http://imgset.gitee.io/img/1554723908440.png" alt="1554723908440"></p>
+<p>PE编辑工具（例如LordPE）查看实例PE.exe文件的E结构。单LordPE的“PEEditor”按钮，打开E_Offset文件，在面板上会直接显示PE结构中的主要字段，如图11.7所示。单击“Directories”按钮，可以打开数据目录表查看面板，如图</p>
+<p><img src="http://imgset.gitee.io/img/1554723928180.png" alt="1554723928180"></p>
+<p><img src="http://imgset.gitee.io/img/1571159906781.png" alt="1571159906781"></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">BarretGuy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://basicbit.cn/2018/11/01/2018-11-01-Windows PE 文件头/">https://basicbit.cn/2018/11/01/2018-11-01-Windows PE 文件头/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/11/01/2018-11-01-Windows%20PE%20%E5%8C%BA%E5%9D%97/"><i class="fa fa-chevron-left">  </i><span>Window PE -- 区块</span></a></div><div class="next-post pull-right"><a href="/2018/11/01/2018-11-01-Windows%20PE%20%E8%BE%93%E5%85%A5%E8%A1%A8/"><span>Window PE -- 输入表</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(http://imgset.gitee.io/img/windows_keyboard.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By BarretGuy</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>

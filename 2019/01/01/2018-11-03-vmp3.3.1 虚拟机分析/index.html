@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="vmp3.3.1 虚拟机分析"><meta name="keywords" content=""><meta name="author" content="BarretGuy"><meta name="copyright" content="BarretGuy"><title>vmp3.3.1 虚拟机分析 | BasicBit</title><link rel="shortcut icon" href="/img/fav.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '6.0.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">虚拟机概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8A%A0%E5%AF%86%E6%BA%90%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">加密源码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">3.1.</span> <span class="toc-text">初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%BC%8F%E6%89%A7%E8%A1%8C%E4%BB%A3%E7%A0%81"><span class="toc-number">3.2.</span> <span class="toc-text">正式执行代码</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E5%9C%B0%E6%96%B9"><span class="toc-number">4.</span> <span class="toc-text">需要注意的地方</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://file.qqtouxiang.com/qinglv/2020-07-10/968d1e73115194c7e70e2f729bb016b2.jpeg"></div><div class="author-info__name text-center">BarretGuy</div><div class="author-info__description text-center">不定期更新操作系统，编程，逆向，破解，算法等技术</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">45</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">9</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">4</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(http://imgset.gitee.io/img/1564390243159.png)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">BasicBit</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/Develop">Develop</a><a class="site-page" href="/Note">Note</a><a class="site-page" href="/Reverse">Reverse</a><a class="site-page" href="/OS">OS</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> Search</span></a></span></div><div id="post-info"><div id="post-title">vmp3.3.1 虚拟机分析</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2019-01-01</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="虚拟机概述"><a href="#虚拟机概述" class="headerlink" title="虚拟机概述"></a>虚拟机概述</h1><p><img src="http://imgset.gitee.io/img/1564389415873.png" alt="1564389415873"></p>
+<p>一个正常的二进制文件，假设为x，那么执行他的是Windows操作系统，也就是解释器，假设为A，</p>
+<p>那么vmp加壳的时候，会根据加壳文件的代码，转化为自己的代码，但行为不变，假设push eax，的字节码为0x03，那么vmp就会修改这个值，假设为0x04，但实际执行的时候还是回执行push eax，现在出现了一个新的问题，push eax的字节码被修改了，解释器A，无法将0x04解释为push eax。在vmp将原字节码转换为vmp的字节码之后，vmp还会生成一个解释器，假设为B，解释器B就是来解释，经过vmp修改过后的代码，也就是上文中0x04这个字节码，实际的执行顺序如下</p>
+<p><strong>解释器A – 执行 – 解释器B – 执行 – vmp修改过后的代码。</strong></p>
+<p>当我们分析vmp代码的时候，实际上分析的是解释器B。</p>
+<p>既然解释器B是在执行虚拟机的代码，而虚拟机代码是模拟的vmp加壳之前的代码，加壳之前的代码是需要寄存器来执行的，而我们在调试中看到的寄存器已经被解释器B使用了。</p>
+<p>那么在堆栈中会出现一个结构体，我们称之为VMContext，下文会详细介绍。</p>
+<p>还有就是vmcode有自己的堆栈地址，并不是保存在esp中。</p>
+<h1 id="加密源码"><a href="#加密源码" class="headerlink" title="加密源码"></a>加密源码</h1><p><img src="http://imgset.gitee.io/img/1564401836257.png" alt="1564401836257"></p>
+<p>开启变态加密</p>
+<p>未开启反调试</p>
+<p>生成后文件</p>
+<p><img src="http://imgset.gitee.io/img/1564401897119.png" alt="1564401897119"></p>
+<p>源文件3KB，加密后551KB，一个惊人的增长</p>
+<h1 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h1><h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><p><img src="http://imgset.gitee.io/img/1564398341996.png" alt="1564398341996"><img src="http://imgset.gitee.io/img/1564398356653.png" alt="1564398356653"><img src="http://imgset.gitee.io/img/1564398371347.png" alt="1564398371347"><img src="http://imgset.gitee.io/img/1564398418945.png" alt="1564398418945"></p>
+<p>上图为vmp开始的代码，我们只关心push指令，它将所有的寄存器压入栈，最后将0压入堆栈，</p>
+<p>此时堆栈保存的数据顺序如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">0</span><br><span class="line">edx</span><br><span class="line">flags</span><br><span class="line">esi</span><br><span class="line">ecx</span><br><span class="line">ebp </span><br><span class="line">edi</span><br><span class="line">ebx</span><br><span class="line">eax</span><br><span class="line">key</span><br></pre></td></tr></table></figure>
+
+<p>继续F7单步</p>
+<p><img src="http://imgset.gitee.io/img/1564398935939.png" alt="1564398935939"></p>
+<p>上面这段代码，主要的作用，取出vmcontext中的key，进行计算，而这个key计算结束的值就是vmcode的代码位置。</p>
+<p>还有两行代码我们需要注意</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">00429382    8BFC            mov edi,esp </span><br><span class="line">;将当前esp的值赋值给edi，这个edi就是vmcode的堆栈的栈顶</span><br><span class="line">;通过上文我们可以看出了栈顶的顺序就是上述堆栈的顺序</span><br><span class="line">;那么取出的值则为0</span><br><span class="line">00429384    8DA424 40FFFFFF lea esp,dword ptr ss:[esp-0xC0]</span><br><span class="line">;在堆栈开辟0xC0个字节的空间，这个空间就是vmcontext，它的首地址保存在esp中</span><br></pre></td></tr></table></figure>
+
+<p>F7单步继续</p>
+<p><img src="http://imgset.gitee.io/img/1564399065949.png" alt="1564399065949"></p>
+<p>上面这段代码中最重要的就是 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lea esi, dword ptr ds :[0x462ABD]</span><br></pre></td></tr></table></figure>
+
+<p>这个地址是第一个handler的地址，这个handler指的是执行vmcode的代码，也就是在vmcode中取出代码，在handler中执行，在上图中jmp之前的代码就是在vmcode的地址中取出下一行要执行的代码。</p>
+<p>继续单步</p>
+<p><img src="http://imgset.gitee.io/img/1564399507137.png" alt="1564399507137"></p>
+<p>我们看到ebp进行了加4，可以看出虚拟机的代码是倒着走的。</p>
+<p>单步一直走，走到带有ret的语句。</p>
+<p><img src="http://imgset.gitee.io/img/1564399608000.png" alt="1564399608000"></p>
+<p>上图中的ecx是经过计算后的偏移，和esi相加就是第一个handler的地址。</p>
+<p>在以前的版本中会有一个VMDispatcher，来决定下一次handler跳转的位置，而在新版本中，去掉了这个功能，很多脱壳神器也就都失效了，换而取代的是 push .. ret或者jmp esi 等等。</p>
+<p>跳到第一个handler地址，继续单步。</p>
+<p><img src="http://imgset.gitee.io/img/1564400047871.png" alt="1564400047871"></p>
+<p>上图为第一个handler的代码，执行到此，我们还需要说一下vmcode中的堆栈问题，vmcode的堆栈地址并不是固定保存在一个寄存器中的，vmcode的地址，和handler的地址也是一样，并不是固定在一个寄存器中的，它可能在某一个handler中就保存到其他的寄存器中了。</p>
+<p>上图中的寄存器对应如下</p>
+<ul>
+<li><p>edi保存了vmcode的堆栈首地址</p>
+</li>
+<li><p>ebp保存了vmcode的首地址</p>
+</li>
+<li><p>handler的地址在esi中。</p>
+</li>
+<li><p>esp保存了vmcontext的首地址，vmcontext的地址将永远保存在esp中不会改变</p>
+</li>
+</ul>
+<p>上图代码主要工作如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mov edx,dword ptr ds:[edi]</span><br><span class="line">lea edi,dword ptr ds:[edi+0x4]</span><br><span class="line">;上面两行代码是一个标准的pop指令，将栈顶的值临时保存在edx中</span><br><span class="line">movzx ecx,byte ptr ss:[ebp]</span><br><span class="line">lea ebp,dword ptr ss:[ebp+0x1]</span><br><span class="line">;将vmcode的下一个指令取出来</span><br></pre></td></tr></table></figure>
+
+<p>F7单步经过一个jmp之后的代码如下</p>
+<p><img src="http://imgset.gitee.io/img/1564401479169.png" alt="1564401479169"></p>
+<p>上图中高亮代码，是将在栈顶取出来的值保存到vmcontext的偏移的位置中，我们刚有提过esp中保存的永远都是vmcontext的地址，上图中的ecx的值为0x10，edx为上一次在堆栈中取出的值为0。</p>
+<p>而在这之后在ebp中取出4个字节的代码，并把ebp进行加4，然后edx解密得到偏移，加上esi就是下一个handler的地址。</p>
+<p>在最后一行代码跳转过去的代码为jmp esi 跳转到下一个handler。</p>
+<p><img src="http://imgset.gitee.io/img/1564402444688.png" alt="1564402444688"><img src="http://imgset.gitee.io/img/1564402703985.png" alt="1564402703985"></p>
+<p>这个handler的代码作用与原理同上，在堆栈中取出内容保存到vmcontext，只是保存位置有变化，保存在0x4的偏移中，然后在ebp中取出代码经过计算通过jmp esi跳转到下一个handler。</p>
+<p>后面的几个handler的都是在做这件事情(初始化vmcontext)，避免篇幅过大，就不贴出代码了。</p>
+<p>初始化结束后的vmcontext如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[vmcontext + <span class="number">0x10</span>] = <span class="number">0</span></span><br><span class="line">[vmcontext + <span class="number">0x04</span>] = edx = <span class="number">00401000</span></span><br><span class="line">[vmcontext + <span class="number">0x28</span>] = FLAGS = <span class="number">00000246</span></span><br><span class="line">[vmcontext + <span class="number">0x38</span>] = esi = <span class="number">00401000</span></span><br><span class="line">[vmcontext + <span class="number">0x24</span>] = ecx = <span class="number">00401000</span></span><br><span class="line">[vmcontext + <span class="number">0x0C</span>] = ebp = <span class="number">0019F</span>F7B</span><br><span class="line">[vmcontext + <span class="number">0x20</span>] = edi = <span class="number">00401000</span></span><br><span class="line">[vmcontext + <span class="number">0x1C</span>] = ebx = <span class="number">0027</span>D000</span><br><span class="line">[vmcontext + <span class="number">0x2C</span>] = eax = <span class="number">0019F</span>FCC</span><br><span class="line">[vmcontext + <span class="number">0x08</span>] = 返回地址 = <span class="number">004650</span>CB</span><br><span class="line">[vmcontext + <span class="number">0x14</span>] = key = A6EC6D77</span><br></pre></td></tr></table></figure>
+
+<p>至此 vmcontext初始化完毕。</p>
+<h2 id="正式执行代码"><a href="#正式执行代码" class="headerlink" title="正式执行代码"></a>正式执行代码</h2><p><img src="http://imgset.gitee.io/img/1564403874592.png" alt="1564403874592"></p>
+<p>在上一行代码高亮的地方</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">0044CAC5    8DBF FCFFFFFF   lea edi,dword ptr ds:[edi-0x4]</span><br><span class="line">;edi保存了vmcode堆栈的地址，进行减4，开辟4字节空间</span><br><span class="line">...</span><br><span class="line">0044CACF    8907            mov dword ptr ds:[edi],eax</span><br><span class="line">;eax的值为2019，将这个值放到edi中，也就是栈顶</span><br><span class="line">;上述代码可还原为 push 2019 也就是我们源代码的第一行代码</span><br></pre></td></tr></table></figure>
+
+<p>继续F7单步走</p>
+<p><img src="http://imgset.gitee.io/img/1564404138745.png" alt="1564404138745"><img src="http://imgset.gitee.io/img/1564404163486.png" alt="1564404163486"></p>
+<p>每次压栈后，在跳转到下一个handler之前都会有一个当前vmcode栈空间的判断，如果当前栈顶超过了esp+60，就要进行栈空间分配。</p>
+<p>分配的代码如下</p>
+<p><img src="http://imgset.gitee.io/img/1564404303275.png" alt="1564404303275"><img src="http://imgset.gitee.io/img/1564404322967.png" alt="1564404322967"><img src="http://imgset.gitee.io/img/1564404338065.png" alt="1564404338065"><img src="http://imgset.gitee.io/img/1564404353276.png" alt="1564404353276"><img src="http://imgset.gitee.io/img/1564404365073.png" alt="1564404365073"></p>
+<p>混肴代码太多</p>
+<p>上图代码总结</p>
+<ul>
+<li>开辟空间</li>
+<li>edi esi eflags 寄存器保存</li>
+<li>利用 esi 和 edi 寄存器，保存开辟空间之前，和开辟空间之后的位置</li>
+<li>通过ecx 和 rep mosb 指令将vmcontext进行恢复</li>
+<li>恢复 edi esi eglags寄存器</li>
+<li>跳转到下一个handler</li>
+</ul>
+<p>到此基本上了解了虚拟机的执行流程。</p>
+<p>接下来的代码就没那么幸运了，因为在vmcode中，包含了很多混肴代码，做一些无用的工作，大大浪费了分析的空间，我通过在栈地址中使用硬件断点跳过这些代码，直接看vmp调用call的过程。</p>
+<p><img src="http://imgset.gitee.io/img/1564407462138.png" alt="1564407462138"></p>
+<p>将保存在vmcontext的值取出来赋值给原寄存器</p>
+<p>此时的堆栈如下</p>
+<p><img src="http://imgset.gitee.io/img/1564407515176.png" alt="1564407515176"></p>
+<p>执行完成API返回到401026继续虚拟机指令。</p>
+<p>Good Job.</p>
+<h1 id="需要注意的地方"><a href="#需要注意的地方" class="headerlink" title="需要注意的地方"></a>需要注意的地方</h1><ul>
+<li>同样的应用程序生成进行两次vmp加壳，所生成的两个EXE，那么这两个EXE的代码不论是在初始化还是在其他地方代码都会有很多不同，但是他们的目的是一致的，假设在初始化部分之前的寄存器压栈，两个不同的exe的jmp指令的多少或者位置都会不同，但它们都是在做同一件事情，就是将key、寄存器、0压入栈。</li>
+<li>在不同的handler中，除了vmcontext的地址是固定保存在esp中之外，其他的均不会固定保存在一个寄存器中，而是在不同的寄存器中进行轮询。</li>
+<li>vmcontext的偏移位置在每次编译的时候也不同</li>
+</ul>
+<p><img src="http://imgset.gitee.io/img/1571159879653.png" alt="1571159879653"></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">BarretGuy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://basicbit.cn/2019/01/01/2018-11-03-vmp3.3.1 虚拟机分析/">https://basicbit.cn/2019/01/01/2018-11-03-vmp3.3.1 虚拟机分析/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2019/03/01/2019-03-01-%E7%BD%91%E6%98%93%E6%B8%B8%E6%88%8F%E7%9A%84%E5%9B%9B%E7%A7%8D%E8%A7%A3%E5%AF%86&amp;%E8%A7%A3%E5%8C%85%EF%BC%8C%E9%99%84%E5%B7%A5%E5%85%B7/"><i class="fa fa-chevron-left">  </i><span>网易游戏的四种解密&amp;解包，附工具</span></a></div><div class="next-post pull-right"><a href="/2018/12/31/2018-12-30-vmp%20%E8%BF%87%E4%BB%A3%E7%A0%81%E6%A0%A1%E9%AA%8C/"><span>vmp 过代码校验</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(http://imgset.gitee.io/img/1564390243159.png)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By BarretGuy</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="打补丁？怎么少得了dll注入"><meta name="keywords" content=""><meta name="author" content="BarretGuy"><meta name="copyright" content="BarretGuy"><title>打补丁？怎么少得了dll注入 | BasicBit</title><link rel="shortcut icon" href="/img/fav.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '6.0.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://file.qqtouxiang.com/qinglv/2020-07-10/968d1e73115194c7e70e2f729bb016b2.jpeg"></div><div class="author-info__name text-center">BarretGuy</div><div class="author-info__description text-center">不定期更新操作系统，编程，逆向，破解，算法等技术</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">45</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">9</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">4</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(http://imgset.gitee.io/img/windows_keyboard.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">BasicBit</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/Develop">Develop</a><a class="site-page" href="/Note">Note</a><a class="site-page" href="/Reverse">Reverse</a><a class="site-page" href="/OS">OS</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> Search</span></a></span></div><div id="post-info"><div id="post-title">打补丁？怎么少得了dll注入</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-11-16</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>dll注入的方法还是挺多的，dll替换，注册表等等，来说说比较常用的一种吧</p>
+<p>这个方法不仅适用dll注入，inline Hook同样适用</p>
+<p>既然是DLL注入，就需要写一个DLL，这个DLL的代码会在被注入的进程中运行，我的代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL APIENTRY <span class="title">DllMain</span><span class="params">( HMODULE hModule,</span></span></span><br><span class="line"><span class="params"><span class="function">                       DWORD  ul_reason_for_call,</span></span></span><br><span class="line"><span class="params"><span class="function">                       LPVOID lpReserved</span></span></span><br><span class="line"><span class="params"><span class="function">                     )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in"><span class="keyword">switch</span></span> (ul_reason_for_call)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_ATTACH:</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">MessageBoxA</span>(<span class="literal">NULL</span>, <span class="string">&quot;I am dll.&quot;</span>, <span class="string">&quot;I am dll&quot;</span>, <span class="number">0</span>);</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_ATTACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_DETACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_DETACH:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>当DLL被加载时，会进行弹窗，仅此而已</p>
+<p>在开始之前需要先了解一下，关于窗口和进程的知识</p>
+<ul>
+<li><p>每个进程都有一个标识，这个我们都知道，特点是每次启动的值都不一样</p>
+</li>
+<li><p>每个窗口也会有一个标识，和进程一样每次启动的值都不一样</p>
+</li>
+</ul>
+<p>那么所谓的DLL注入，就是在目标进程上开辟一个线程，并调用LoadLibrary</p>
+<p>想在别的进程上创建一个线程，就需要这个进程的句柄</p>
+<p>获取这个句柄就需要它的PID</p>
+<p>而PID每次启动的值都不一样，那么每次注入都要看一眼PID？有些麻烦</p>
+<p>这个时候窗口标识就需要用到了，可以通过窗口句柄获取到进程的PID</p>
+<p>而获取窗口句柄需要窗口的标题和类名，这两个内容，可以通过spy++来找到</p>
+<p><img src="http://imgset.gitee.io/img/1572008641838.png" alt="1572008641838"></p>
+<p>如上图，只需要拖动<img src="http://imgset.gitee.io/img/1572008662314.png" alt="1572008662314">到目标窗口上去就好了</p>
+<p>来看代码把，把窗口句柄转换为进程ID：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>当然你也可以使用遍历所有窗口的方式进行筛选，实现的方式可不止这一个</p>
+<p>获取到窗口句柄，就可以创建远程线程了</p>
+<p>在创建线程的时候，需要一个函数地址，和一个函数参数</p>
+<p>只需要一个参数？有没有想到LoadLibrary函数，这个函数只需要一个参数</p>
+<p>也就是说我们完全可以使用LoadLibrary的地址来作为线程地址</p>
+<p>那么LoadLibrary函数还需要一个参数，既然是在别的进程上创建线程，那么参数的内容也要在目标进程中，我们要在目标进程上开辟内存空间并写入参数值:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在目标进程分配内存，内存大小为参数的大小</span></span><br><span class="line">VOID *pRemoteBuf = <span class="built_in">VirtualAllocEx</span>(hProcess, <span class="literal">NULL</span>, dwBufSize, MEM_COMMIT, PAGE_READWRITE);</span><br><span class="line"><span class="comment">//将参数值写入到目标进程中</span></span><br><span class="line"><span class="built_in">WriteProcessMemory</span>(hProcess, pRemoteBuf, (LPVOID)pFilePath, dwBufSize, <span class="literal">NULL</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>参数写进去了，还需要LoadLibrary的地址，就可以创建远程线程了：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>函数的地址有了，参数的地址有了，可以创建远程线程了：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>来看看效果：</p>
+<p><img src="http://imgset.gitee.io/img/1572009493193.png" alt="1572009493193"></p>
+<p><img src="http://imgset.gitee.io/img/1572009373345.png" alt="1572009373345"></p>
+<p>注入成功</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">BarretGuy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://basicbit.cn/2018/11/16/2018-11-17-DLL注入/">https://basicbit.cn/2018/11/16/2018-11-17-DLL注入/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/11/16/2018-11-16-%E5%BE%AE%E4%BF%A1%E6%B6%88%E6%81%AF%E6%92%A4%E5%9B%9E%E5%88%86%E6%9E%90/"><i class="fa fa-chevron-left">  </i><span>微信 - 撤回分析 &amp; patch</span></a></div><div class="next-post pull-right"><a href="/2018/11/12/2018-11-13-%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%EF%BC%8C%E6%8A%BD%E8%B1%A1%EF%BC%8C%E7%BB%88%E7%BB%93%E7%AF%87/"><span>多重继承？抽象类？C++的内存布局并不复杂</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(http://imgset.gitee.io/img/windows_keyboard.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By BarretGuy</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>

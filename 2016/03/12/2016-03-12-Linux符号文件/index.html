@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Linux内核（文件）"><meta name="keywords" content="Linux"><meta name="author" content="BarretGuy"><meta name="copyright" content="BarretGuy"><title>Linux内核（文件） | BasicBit</title><link rel="shortcut icon" href="/img/fav.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '6.0.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%93%BE%E6%8E%A5%E6%96%87%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">链接文件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux%E4%B8%AD%E7%9A%84%E6%89%80%E6%9C%89%E6%96%87%E4%BB%B6%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">Linux中的所有文件类型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux%E4%B8%AD%E7%9A%84%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E4%B8%8E%E7%B4%A2%E5%BC%95"><span class="toc-number">3.</span> <span class="toc-text">Linux中的文件描述与索引</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90"><span class="toc-number">4.</span> <span class="toc-text">Linux文件权限</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%A4%E6%AD%A4%E4%B9%8B%E5%A4%96%E8%BF%98%E6%9C%89%E4%B8%89%E7%A7%8D%E9%99%84%E5%8A%A0%E7%9A%84%E6%A0%87%E8%AE%B0"><span class="toc-number">4.1.</span> <span class="toc-text">除此之外还有三种附加的标记</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://file.qqtouxiang.com/qinglv/2020-07-10/968d1e73115194c7e70e2f729bb016b2.jpeg"></div><div class="author-info__name text-center">BarretGuy</div><div class="author-info__description text-center">不定期更新操作系统，编程，逆向，破解，算法等技术</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">45</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">9</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">4</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(img/current_linux_desktop_.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">BasicBit</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/Develop">Develop</a><a class="site-page" href="/Note">Note</a><a class="site-page" href="/Reverse">Reverse</a><a class="site-page" href="/OS">OS</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> Search</span></a></span></div><div id="post-info"><div id="post-title">Linux内核（文件）</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2016-03-12</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="链接文件"><a href="#链接文件" class="headerlink" title="链接文件"></a>链接文件</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ln p1  p2</span></span><br></pre></td></tr></table></figure>
+
+<p>​    创建一个新的硬链接，由路径p1标识的文件创建一个路径名为p2的硬链接。</p>
+<p>硬链接特性：</p>
+<ul>
+<li>不允许用户给目录创建硬链接。因为这可能把目录树变为环形图，从而就不能通过名字定位一个文件。</li>
+<li>只有在同一个文件系统中的文件之间才能创建链接。这带来比较大的限制。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ln -s p1 p2</span></span><br></pre></td></tr></table></figure>
+
+<p>创建一个软连接，也称符号链接。符号链接是段文件，这些文件包含有另一个文件的任意一个路径名。路径名可以指向2位于任意一个文件系统的人任意目录或文件，甚至包括不存在的文件。</p>
+<h1 id="Linux中的所有文件类型"><a href="#Linux中的所有文件类型" class="headerlink" title="Linux中的所有文件类型"></a>Linux中的所有文件类型</h1><ul>
+<li>普通文件</li>
+<li>目录</li>
+<li>符号链接</li>
+<li>面向块的设备文件</li>
+<li>面向字符的设备文件</li>
+<li>管道和命名管道</li>
+<li>套接字</li>
+</ul>
+<h1 id="Linux中的文件描述与索引"><a href="#Linux中的文件描述与索引" class="headerlink" title="Linux中的文件描述与索引"></a>Linux中的文件描述与索引</h1><p>文件系统处理文件需要所有的信息包含在一个名为索引节点的数据结构中。每个文件都有自己的索引节点 ，文件系统用索引节点来标识文件。</p>
+<p>文件系统及内核函数对索引节点的处理可能随Unix西永的不同有很大的差异，但必须提供POSIX标准中指定如下属性：</p>
+<ul>
+<li>文件类型</li>
+<li>与 文件相关的硬链接数量</li>
+<li>以字节为单位的文件长度</li>
+<li>设备标识符（即包含文件的设备的表示符）</li>
+<li>在文件系统中表示文件的索引节点号</li>
+<li>文件拥有者的UID</li>
+<li>文件的用户组ID</li>
+<li>几个时间戳，表示索引节点状态改变的事件最后访问事件与最后修改时间</li>
+<li>访问权限和文件模式</li>
+</ul>
+<h1 id="Linux文件权限"><a href="#Linux文件权限" class="headerlink" title="Linux文件权限"></a>Linux文件权限</h1><p><img src="http://imgset.gitee.io/img/LinuxFile.png" alt="LinuxFile"></p>
+<p>每三个为一组</p>
+<p>第一组（文件所有者权限）</p>
+<p>第二组（同组用户，不包括所有者权限）</p>
+<p>第三组（其他用户权限）</p>
+<p>可用chmod命令修改文件权限 例：chmod 777 &lt;filename&gt;</p>
+<h2 id="除此之外还有三种附加的标记"><a href="#除此之外还有三种附加的标记" class="headerlink" title="除此之外还有三种附加的标记"></a>除此之外还有三种附加的标记</h2><p>suid</p>
+<p>进程执行一个文件时通常保持进程拥有者的UID，然而如果设置了可执行文件的suid的标志位，进程就获得了该文件拥有者的UID。</p>
+<p>sgid    </p>
+<p>进程执行一个文件时保持进程组的用户组ID。然而设置了可执行sgid标志位，进程就获得了该文件用户组的ID。</p>
+<p>sticky</p>
+<p>实则知了sticky标志位的可执行文件相当于向内核发出一个请求，当程序执行结束后，依然将他保留在内存。这个标志现在已经使用基于代码页共享的其他方法替代。</p>
+<p><img src="http://imgset.gitee.io/img/1571160010872.png" alt="1571160010872"></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">BarretGuy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://basicbit.cn/2016/03/12/2016-03-12-Linux符号文件/">https://basicbit.cn/2016/03/12/2016-03-12-Linux符号文件/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2016/03/13/2016-03-13-Windows%E5%BC%80%E6%9C%BA%E8%BF%87%E7%A8%8B/"><i class="fa fa-chevron-left">  </i><span>Window开机过程</span></a></div><div class="next-post pull-right"><a href="/2016/03/12/2016-03-12-Linux%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/"><span>Linux进程管理</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(img/current_linux_desktop_.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By BarretGuy</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>

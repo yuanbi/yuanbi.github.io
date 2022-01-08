@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="C++基于SEH二次封装的异常处理 - 之数据结构篇"><meta name="keywords" content="C++"><meta name="author" content="BarretGuy"><meta name="copyright" content="BarretGuy"><title>C++基于SEH二次封装的异常处理 - 之数据结构篇 | BasicBit</title><link rel="shortcut icon" href="/img/fav.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '6.0.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://file.qqtouxiang.com/qinglv/2020-07-10/968d1e73115194c7e70e2f729bb016b2.jpeg"></div><div class="author-info__name text-center">BarretGuy</div><div class="author-info__description text-center">不定期更新操作系统，编程，逆向，破解，算法等技术</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">45</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">9</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">4</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(http://imgset.gitee.io/img/adult-close-up-code-1181263.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">BasicBit</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/Develop">Develop</a><a class="site-page" href="/Note">Note</a><a class="site-page" href="/Reverse">Reverse</a><a class="site-page" href="/OS">OS</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> Search</span></a></span></div><div id="post-info"><div id="post-title">C++基于SEH二次封装的异常处理 - 之数据结构篇</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-11-12</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p><img src="http://imgset.gitee.io/img/1571397583862.png" alt="1571397583862"></p>
+<p>本文将围绕上图来介绍C++异常的数据结构。</p>
+<p>在C++中如果函数中包含异常处理，将会在此函数中的开始部分注册一个异常回调函数，当函数中有异常抛出的时候，便会调用这个回调函数，也就是在SEH中注册一个函数（异常回调函数）。</p>
+<p>这个异常回调函数指向的地址的汇编码通常是这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">00D963A4  mov         eax,0D9A064h  </span><br><span class="line">00D963A9  jmp         ___CxxFrameHandler3 (0D910FFh) </span><br></pre></td></tr></table></figure>
+
+<p>很明显代码中的eax的值保存了关键信息。</p>
+<p>这个0D9A064h所指向的地址就是上图中的FuncInfo结构体：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncInfo</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    DWORD magicNumber; <span class="comment">//编译器生成的固定数字</span></span><br><span class="line">    DWORD maxState; <span class="comment">//最大栈展开数的下标值</span></span><br><span class="line">    DWORD pUnwindMap; <span class="comment">//指向栈展开函数表的指针，指向UnwindMapEntry表结构</span></span><br><span class="line">    DWORD dwTryCount; <span class="comment">//try块的数量</span></span><br><span class="line">    DWORD pTryBlockMap; <span class="comment">//try块列表，指向TryBlockMapEntry结构体</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这个struct包含了两个struct，分别为UnwindMapEntry和TryBlockMapEntry。</p>
+<p>先来看看UnwindMapEntry，UnwindMapEntry表配合maxState项来使用。</p>
+<p>maxState记录了异常发生时try块展开的次数，展开时执行的函数由UnwindMapEntry表结构记录，结构体信息如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>在try块展开的过程中，可能存在多个对象，每个对象的析构信息会以数组的形式记录。</p>
+<p>toState用来判断结构是否位于数组中，lpFuncAction保存析构函数所在的地址。</p>
+<p>TryBlockMapEntry结构如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TryBlockMapEntry</span>&#123;</span></span><br><span class="line">    DWORD tryLow  ;<span class="comment">//try块的最小状态索引，用于范围检查</span></span><br><span class="line">    DWORD tryHigh ;<span class="comment">//try块的最大状态索引，用于范围检查</span></span><br><span class="line">    DWORD catchHigh ;<span class="comment">//catch块的最高状态索引，用域范围检查</span></span><br><span class="line">    DWORD dwCatchCount; <span class="comment">//catch块个数</span></span><br><span class="line">    DWORD pCatchHandlerArray ; <span class="comment">//catch块的描述，指向_msRttiDscr表结构</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这个struct用于判断异常产生在哪个try块中。t</p>
+<p>ryLow和tryHigh用于检查长生的异常是否来源于try块中。</p>
+<p>catchHigh用于匹配catch块时的检查项。</p>
+<p>每个catch块都会对应一个_msRttiDscr表结构，保存在pCatchHandlerArray指向的地址中（数组方式存放）。</p>
+<p>再来看看_msRttiDscr吧</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">msRttiDscr</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    DWORD nFlag ;<span class="comment">//用域catch块的匹配检查</span></span><br><span class="line">    DWORD pType ;<span class="comment">//catch块要捕捉的类型，指向TypeDescriptor表结构</span></span><br><span class="line">    DWORD dispCatchObjOffset; <span class="comment">//同于定位异常对象在当前EBP中的偏移位置</span></span><br><span class="line">    DWORD CatchProc; <span class="comment">//catch块的首地址</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>nFlag同来检查catch块匹配的类型，含义值如下：</p>
+<ul>
+<li>1：常量</li>
+<li>2：变量</li>
+<li>4：未知</li>
+<li>8：引用</li>
+</ul>
+<p>此结构中的pType和CatchProc为关键数据，当抛出异常对象时，需要赋值抛出的异常对象信息，dispCatchObjOffset用于定位异常对象在当前EBP中的偏移位置。</p>
+<p>CatchProc项中保存了异常处理catch块的首地址，这样在匹配异常后，就可以正确的执行catch语句块，异常的匹配信息记录在pType所指向的结构中，结构信息如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>当异常发生时，就可以通过以上信息于抛出异常时的信息进行对比，得到对应表的结构，最后通过_msRttiDscr表中的CatchProc项得到catch块的首地址。从而走到正确的catch块中。</p>
+<p>现在我们再来说说throw吧，抛出异常时的代码通常如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">00D918BC  push        offset __TI1H (0D9A094h)  </span><br><span class="line">00D918C1  lea         eax,[ebp-0F0h]  </span><br><span class="line">00D918C7  push        eax  </span><br><span class="line">00D918C8  call        __CxxThrowException@8 (0D913A7h)  </span><br></pre></td></tr></table></figure>
+
+<p>在抛出一场函数时传递了一个全局参数__TI1H。</p>
+<p>这个地址中指向就是抛出异常时需要的结构信息ThrowInfo：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>上述结构体包含了类型信息，用于匹配抛出的异常类型。</p>
+<p>nFlag = 1= 常量类型异常</p>
+<p>nFlag = 2 = 变量类型异常</p>
+<p>由于在try块中发生异常后不会再反汇try块中，pDestructor的作用就是记录try块中的异常对象的析构函数地址，在异常处理完成后调用。</p>
+<p>抛出异常所对应的catch块的类型信息就被记录在pCatchTableTypeArray所指向的结构中。</p>
+<p>结构体CatchTableTypeArray如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>ppCatchTableType指向指针数组，里面保存了CatchTableType的地址列表。</p>
+<p>dwCount来描述数组中有多少个元素。</p>
+<p>来看看CatchTableType里面有什么：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>还记得上文中的TypeDescriptor结构吗，在异常处理的时候，可以与上述结构中的pTypeInfo进行对比，并找到正确的catch块。</p>
+<p>flag标记用于判断异常对象属于那种类型，类如，指针、引用等。</p>
+<p>标记值含义如下：</p>
+<ul>
+<li>0x1：简单类型复制</li>
+<li>0x2：已被捕获</li>
+<li>0x4：有虚表基类复制</li>
+<li>0x8：指针和引用类型复制</li>
+</ul>
+<p>如果异常类型是对象，那么就会把他们的结构信息存储下来，存储在thisDisPlacement中：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>以上就是C++异常处理所用到的所有的数据结构，建议读者阅读结束后，再看下文首中的图片加深记忆。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">BarretGuy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://basicbit.cn/2018/11/12/2018-11-14-C++异常处理的二次封装/">https://basicbit.cn/2018/11/12/2018-11-14-C++异常处理的二次封装/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/11/12/2018-11-14-10%E5%88%86%E9%92%9F%E7%A0%B4%E8%A7%A3%E6%94%B6%E9%93%B6%E8%BD%AF%E4%BB%B6/"><i class="fa fa-chevron-left">  </i><span>10分钟破解一款收银软件</span></a></div><div class="next-post pull-right"><a href="/2018/11/12/2018-11-14-C++%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E6%B5%81%E7%A8%8B%E4%B8%8E%E8%AF%86%E5%88%AB/"><span>C++基于SEH二次封装的异常流程与识别</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(http://imgset.gitee.io/img/adult-close-up-code-1181263.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By BarretGuy</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>

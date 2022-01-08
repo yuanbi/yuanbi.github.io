@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="10分钟破解一款收银软件"><meta name="keywords" content=""><meta name="author" content="BarretGuy"><meta name="copyright" content="BarretGuy"><title>10分钟破解一款收银软件 | BasicBit</title><link rel="shortcut icon" href="/img/fav.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '6.0.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://file.qqtouxiang.com/qinglv/2020-07-10/968d1e73115194c7e70e2f729bb016b2.jpeg"></div><div class="author-info__name text-center">BarretGuy</div><div class="author-info__description text-center">不定期更新操作系统，编程，逆向，破解，算法等技术</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">45</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">9</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">4</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(http://imgset.gitee.io/img/adult-close-up-code-1181263.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">BasicBit</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/Develop">Develop</a><a class="site-page" href="/Note">Note</a><a class="site-page" href="/Reverse">Reverse</a><a class="site-page" href="/OS">OS</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> Search</span></a></span></div><div id="post-info"><div id="post-title">10分钟破解一款收银软件</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-11-12</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>一个朋友在理发店工作，需要一款收银软件，这种东西还用想？百度一大堆，我去百度Down了两个，在云沙箱上跑，都有恶意代码。</p>
+<p>后来就有了这篇文章。</p>
+<p>我在xxxx官网下载了一款试用版的，有限制，进入正文。</p>
+<p>软件是这个样子的</p>
+<p><img src="http://imgset.gitee.io/img/1571567963572.png" alt="1571567963572"></p>
+<p>我简单运行了一下，添加会员会有人数限制，一会再来说这些吧。</p>
+<p>PEID查壳：</p>
+<p><img src="http://imgset.gitee.io/img/1571568122093.png" alt="1571568122093"></p>
+<p>.Net ??  记得dnspy这款神器吗？ 没了解过没关系，2分钟后你就会见识到它的强大。</p>
+<p> IntelliLock v.1.5.x.0 直接用d4dot来搞定，你可能不认识这款工具百度down下来就好了。</p>
+<p>下载好之后，打开cmd，并进入这款软件的目录，d4dot的使用非常简单：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们采用第二种方法，d4dot -r “目录” 输出如下：</p>
+<p><img src="http://imgset.gitee.io/img/1571568768381.png" alt="1571568768381"></p>
+<p>这款软件会将解密的文件，做一个备份，名字就是源文件名后面加一个clean，类似这样：</p>
+<p><img src="http://imgset.gitee.io/img/1571568831859.png" alt="1571568831859"></p>
+<p>如果文件不需要解密，将不会产生这个文件。</p>
+<p>现在我们把解密后的文件，和无需解密的文件复制出来，放在一个新的文件夹中，并将解密的文件名中多余的-cleaned删除掉，就把这个文件夹命名为Unpacked01吧。</p>
+<p>现在我们针对Unpacked01文件夹，再次执行一遍上面的步骤，生成Unpacked02文件夹。</p>
+<p>脱壳结束了？对就是这么easy。</p>
+<p>轮到神器dnspy登场了，使用dnspy软件打开Unpacked02文件夹中的主程序文件，也就是INTMS.exe，如下图。</p>
+<p><img src="http://imgset.gitee.io/img/1571569395715.png" alt="1571569395715"></p>
+<p>C#大佬可以关闭这个页面了。</p>
+<p>这是什么？源码，没错，还支持源码调试呢。</p>
+<p>还记得文首说的软件限制吗，先来看看限制的提示吧。</p>
+<p><img src="http://imgset.gitee.io/img/1571569764482.png" alt="1571569764482"></p>
+<p>关键点怎么找？直接搜索添加会员Button的名字就行了，源码摆在那，随你怎么玩。</p>
+<p><img src="http://imgset.gitee.io/img/1571569880657.png" alt="1571569880657"></p>
+<p>上图就是关键点，代码我已经修改过了，SoftType支持两个参数，一个是加密狗模式，一个是测试模式，运行的时候根据这个参数来进行不同的限制，如果不在二者其一，就会跳过限制代码。</p>
+<p>只要将SoftType改为不在这两个模式中就可以了，我就随便改了个数字。</p>
+<p>现在再去添加会员就看不到温馨提示了。</p>
+<p>搞定。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">BarretGuy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://basicbit.cn/2018/11/12/2018-11-14-10分钟破解收银软件/">https://basicbit.cn/2018/11/12/2018-11-14-10分钟破解收银软件/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/11/12/2018-11-12-%E4%BB%8E%E7%BB%A7%E6%89%BF%E7%9A%84%E8%A7%92%E5%BA%A6%E5%86%8D%E6%9D%A5%E8%81%8A%E8%81%8A%E5%A4%9A%E6%80%81%E5%90%A7/"><i class="fa fa-chevron-left">  </i><span>从继承的角度出发再探多态</span></a></div><div class="next-post pull-right"><a href="/2018/11/12/2018-11-14-C++%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E4%BA%8C%E6%AC%A1%E5%B0%81%E8%A3%85/"><span>C++基于SEH二次封装的异常处理 - 之数据结构篇</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(http://imgset.gitee.io/img/adult-close-up-code-1181263.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By BarretGuy</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Linux 内存地址与分段机制"><meta name="keywords" content="Linux"><meta name="author" content="BarretGuy"><meta name="copyright" content="BarretGuy"><title>Linux 内存地址与分段机制 | BasicBit</title><link rel="shortcut icon" href="/img/fav.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '6.0.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux-%E5%86%85%E5%AD%98%E5%9C%B0%E5%9D%80%E4%B8%8E%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6"><span class="toc-number">1.</span> <span class="toc-text">Linux 内存地址与分段机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%BB%E8%BE%91%E5%9C%B0%E5%9D%80"><span class="toc-number">1.0.1.</span> <span class="toc-text">逻辑地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E5%9C%B0%E5%9D%80"><span class="toc-number">1.0.2.</span> <span class="toc-text">线性地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80"><span class="toc-number">1.0.3.</span> <span class="toc-text">物理地址</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E5%88%86%E6%AE%B5"><span class="toc-number">2.</span> <span class="toc-text">系统分段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="toc-number">2.0.1.</span> <span class="toc-text">段描述符</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E6%A0%BC%E5%BC%8F"><span class="toc-number">2.0.1.0.1.</span> <span class="toc-text">段描述符格式</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://file.qqtouxiang.com/qinglv/2020-07-10/968d1e73115194c7e70e2f729bb016b2.jpeg"></div><div class="author-info__name text-center">BarretGuy</div><div class="author-info__description text-center">不定期更新操作系统，编程，逆向，破解，算法等技术</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">45</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">9</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">4</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(img/current_linux_desktop_.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">BasicBit</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/Develop">Develop</a><a class="site-page" href="/Note">Note</a><a class="site-page" href="/Reverse">Reverse</a><a class="site-page" href="/OS">OS</a></span><span class="pull-right"><a class="site-page social-icon search"><i class="fa fa-search"></i><span> Search</span></a></span></div><div id="post-info"><div id="post-title">Linux 内存地址与分段机制</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2016-03-12</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="Linux-内存地址与分段机制"><a href="#Linux-内存地址与分段机制" class="headerlink" title="Linux 内存地址与分段机制"></a>Linux 内存地址与分段机制</h1><p>基于80x86</p>
+<h3 id="逻辑地址"><a href="#逻辑地址" class="headerlink" title="逻辑地址"></a>逻辑地址</h3><p>指定一个操作数或一条指令的地址，这种寻址方式，在80x86分段模式下表现的尤为得体，在Windows里二进制可执行文件会分为若干段。每一个逻辑地址都由一个段和偏移组成，偏移量指定了从段开始的地方到实际地址的距离。</p>
+<h3 id="线性地址"><a href="#线性地址" class="headerlink" title="线性地址"></a>线性地址</h3><p>也可以叫做虚拟地址，是一个32位整数，最高可以表示到4294967296个内存单元。通常用16进制表示，值的范围0x00000000到0xFFFFFFFF</p>
+<h3 id="物理地址"><a href="#物理地址" class="headerlink" title="物理地址"></a>物理地址</h3><p>用于内存芯片级内存单元寻址。他们从微处理器的地址引脚发送到内存总线上的电信号对应。物理地址由32位或36位unsigned int 表示</p>
+<p>内存管理单元（MMU）通过一种称为分段单元的硬件电路，把一个逻辑地址转换为线性地址，接着，第二个称之为分页单元的硬件电路把线性地址转换为物理地址。</p>
+<p><img src="http://imgset.gitee.io/img/1536740000646.png" alt="1536740000646"></p>
+<p>在多处理器系统中，所有 CPU都共享同一内存，这意味着 RAM芯片可以由独立的 CPU并发地访问。因为在RAM芯片上的读或写操作必须串行地执行，因此一种所谓内存仲裁器的硬件电路插在总线和每个 RAM芯片之间，其作用是如果某个 RAM芯片空闲，就准予一个 CPU访问，如果该芯片忙于为另一个处理器提出的请求服务，就延迟这个 CPU的访问 。即使在单处理器上h也使用内存仲裁器，因为单处理器系统中包含一个叫做 DMA控制器的特殊处理器，在多处理器系统的情况下，因为仲裁器有多个输入端口，所以其结构更加复杂，例如，双Pentium在每个芯片的入口维持一个两端口仲裁器，并在试图使用公用总线前请求两个CPU交换同步信息.从编程观点看，因为仲栽器由硬件电路管理，因此它是隐藏的。</p>
+<h1 id="系统分段"><a href="#系统分段" class="headerlink" title="系统分段"></a>系统分段</h1><p>一个逻辑地址由两部分组成：一个段标识符和一个指定段内先对地址的偏移量。段标识符是一个16位长的字段，称为段描述符。而偏移量是一个32位长的字段。</p>
+<p><img src="http://imgset.gitee.io/img/1536740109090.png" alt="1536740109090"></p>
+<p>处理器提供6个段寄存器，保存了段选择符，分别是：cs ss ds es fs gs，6个段寄存器。</p>
+<p>cs 代码段寄存器</p>
+<p>ss 栈段寄存器</p>
+<p>ds 数据段寄存器 </p>
+<p>cs 寄存器中，含有一个两位字段，用以指明CPU的当前CPL（Current Privilege Level），0代表R0级别，1代表R3级别。分别称为，内核态和用户态。</p>
+<h3 id="段描述符"><a href="#段描述符" class="headerlink" title="段描述符"></a>段描述符</h3><p>每个段由一个8字节的段描述符表示，他描述了段的属性，段描述符放在GDT（Global Descriptor Table）或LDT（Local Description Table）中。</p>
+<p>一般来说只定义一个GDT，而每个进程除了存放在GDT中的段之外如果还有附加的段，就可以有自己的LDT。GDT在主存中的地址和大小存放在gdtr控制寄存器中，当前正在被使用的LDT地址和大小放在ldtr寄存器中。</p>
+<h5 id="段描述符格式"><a href="#段描述符格式" class="headerlink" title="段描述符格式"></a>段描述符格式</h5><p><img src="http://imgset.gitee.io/img/1536740043063.png" alt="1536740043063"></p>
+<p><strong>段描述符字段</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BASE</td>
+<td>包含段的首字节的线性地址</td>
+</tr>
+<tr>
+<td>G</td>
+<td>粒度标志：如果该位清0,、则段大小以字节为单位，否则以4096字节的倍数计算</td>
+</tr>
+<tr>
+<td>Limit</td>
+<td>存放段中最后一个内存单元的偏移量，从而决定段的长度，如果G被置为0,则一个段的大小在1个字节1 MB之间变化。否則，将在4 KB到 4 GB 之间变化</td>
+</tr>
+<tr>
+<td>S</td>
+<td>系统标志：如果它被清0，则这是一个系统段，存储诸如 LDT这种关鍵的数据结构，否則它是一个普通的代码段或数据段。</td>
+</tr>
+<tr>
+<td>Type</td>
+<td>描述了段的类型特征和它的存取权限。</td>
+</tr>
+<tr>
+<td>DPL</td>
+<td>描述符特权级字段，用于限制对这个段的存取 。 它表示为访问这个段而要求的 CPU最小的优先级 。因此， DPL设为0的段只能当 CPL设为0时（即在内核态）才垃可访问的，而 DPL设为3的段对任何CPL都是可访问的。</td>
+</tr>
+<tr>
+<td>P</td>
+<td>Segment-Present标志：等于0表示段当前不在主存中， Linux总是把这个标志（第47位）设为1。因为它从来不把整个段交换到磁盘上去。</td>
+</tr>
+<tr>
+<td>D 或 B</td>
+<td>称 为 D成 B的标志，取决于是代码段还是数据段 ，D或B的含义在两种情况下稍有所区别，但是如果段偏移量的地址是32位长，就基本上把它置为 1.如果这个偏移置是16位长，它被清0。</td>
+</tr>
+<tr>
+<td>AVL</td>
+<td>被Linux忽略。</td>
+</tr>
+</tbody></table>
+<p>​        </p>
+<p><strong>代码段描述符</strong></p>
+<p>​         表示这个段代表一个代码段，他可以放在GDT或LDT中，S标志位为1。</p>
+<p><strong>数据段描述符</strong></p>
+<p>​         表示这个段代表一个数据段，他可以放在GDT或LDT中，S标志位为1。</p>
+<p><strong>任务状态段描述符(TSSD)</strong></p>
+<p>​         表示这个段描述符代表一个任务状态段（Task State Segment）TSS，也就是说这个段用于保存处理器寄存器的内容它只能出现在GDT中。根据相应的进程是否正在CPU上运行，Type字段的值分别为11或9.这个描述符的S标志置0。</p>
+<p><strong>局部描述符表描述符（LDTD）</strong></p>
+<p>​         表示这个段描述符代表一个包含LDT的段，它只出现在GDT中。相应的Type字段的值 为2，S标志置为0。</p>
+<p><img src="http://imgset.gitee.io/img/1571159997314.png" alt="1571159997314"></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">BarretGuy</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://basicbit.cn/2016/03/12/2016-03-14-Linux内存地址/">https://basicbit.cn/2016/03/12/2016-03-14-Linux内存地址/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2016/03/12/2016-03-12-Linux%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/"><i class="fa fa-chevron-left">  </i><span>Linux进程管理</span></a></div><div class="next-post pull-right"><a href="/2016/03/10/2016-03-10-Linux%20%E5%BC%80%E6%9C%BA%E8%BF%87%E7%A8%8B/"><span>Linux开机过程</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(img/current_linux_desktop_.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By BarretGuy</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
